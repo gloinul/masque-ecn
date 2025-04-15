@@ -75,8 +75,47 @@ additional extensions are needed. This document specified the necessary
 extension, defining a negotiation method and a new context that carries
 the ECN bits and the UDP payload instead of the context defined in {{RFC9298}}.
 
+An alternative to using this extension would be to use Connect-IP
+{{RFC9484}}, however that results in that one carries a full IP header
+between the HTTP client and HTTP server. That results in significantly
+more overhead compared to this extension that adds one byte for containing
+the ECN bits.
 
-# Context
+# ECN enabled UDP Proxying Payload
+
+The HTTP Datagram Payload format is defined in {{RFC9484}} as depicted below.
+
+~~~ ascii-art
+UDP Proxying HTTP Datagram Payload {
+  Context ID (i),
+  UDP Proxying Payload (..),
+}
+{: #dgram-format title="ECN enabled UDP Proxying HTTP Datagram Format"}
+
+
+This ECN carrying HTTP Datagram payload is defined in the following way:
+
+~~~ ascii-art
+UDP Proxying Payload {
+  ECN(2),
+  Reserved(6),
+  UDP Datagram Payload,
+}
+~~~
+{: #UDP-Proxying-Payload title="ECN enabled UDP Proxying Payload"}
+
+ECN: A two bit field carrying the IP ECN bits as defined by Section 5
+    of {{RFC3168}} to be set or as received on the IP/UDP packet
+    carrying the UDP Datagram payload included.
+
+Reserved: six bits currently reserved, SHALL be set to zero (0) on
+    transmission, and ignored on reception.
+
+UDP Datagram Payload: The payload of the UDP datagram. Note that this field
+    can be empty.
+
+
+This format will use a negotiated context ID that MUST be non-zero.
 
 
 # Negotiating ECN Usage
