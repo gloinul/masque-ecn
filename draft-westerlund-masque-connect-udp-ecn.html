@@ -1172,7 +1172,7 @@ Connect-UDP protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-context" class="internal xref">Context</a></p>
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-ecn-enabled-udp-proxying-pa" class="internal xref">ECN enabled UDP Proxying Payload</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-negotiating-ecn-usage" class="internal xref">Negotiating ECN Usage</a></p>
@@ -1214,13 +1214,52 @@ being proxied using the Connect-UDP extended connect over HTTP
 additional extensions are needed. This document specified the necessary
 extension, defining a negotiation method and a new context that carries
 the ECN bits and the UDP payload instead of the context defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">An alternative to using this extension would be to use Connect-IP
+<span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>, however that results in that one carries a full IP header
+between the HTTP client and HTTP server. That results in significantly
+more overhead compared to this extension that adds one byte for containing
+the ECN bits.<a href="#section-1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="context">
+<div id="ecn-enabled-udp-proxying-payload">
 <section id="section-2">
-      <h2 id="name-context">
-<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-context" class="section-name selfRef">Context</a>
-    </h2>
+      <h2 id="name-ecn-enabled-udp-proxying-pa">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-ecn-enabled-udp-proxying-pa" class="section-name selfRef">ECN enabled UDP Proxying Payload</a>
+      </h2>
+<p id="section-2-1">The HTTP Datagram Payload format is defined in <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span> as depicted below.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<span id="name-ecn-enabled-udp-proxying-pay"></span><div id="UDP-Proxying-Payload">
+<figure id="figure-1">
+        <div class="alignLeft art-ascii-art art-text artwork" id="section-2-2.1">
+<pre>
+UDP Proxying HTTP Datagram Payload {
+  Context ID (i),
+  UDP Proxying Payload (..),
+}
+{: #dgram-format title="ECN enabled UDP Proxying HTTP Datagram Format"}
+
+
+This ECN carrying HTTP Datagram payload is defined in the following way:
+
+~~~ ascii-art
+UDP Proxying Payload {
+  ECN(2),
+  Reserved(6),
+  UDP Datagram Payload,
+}
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-ecn-enabled-udp-proxying-pay" class="selfRef">ECN enabled UDP Proxying Payload</a>
+        </figcaption></figure>
+</div>
+<p id="section-2-3">ECN: A two bit field carrying the IP ECN bits as defined by Section 5
+    of <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> to be set or as received on the IP/UDP packet
+    carrying the UDP Datagram payload included.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">Reserved: six bits currently reserved, SHALL be set to zero (0) on
+    transmission, and ignored on reception.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">UDP Datagram Payload: The payload of the UDP datagram. Note that this field
+    can be empty.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-6">This format will use a negotiated context ID that MUST be non-zero.<a href="#section-2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="negotiating-ecn-usage">
