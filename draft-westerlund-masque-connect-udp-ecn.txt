@@ -1,0 +1,146 @@
+
+
+
+
+MASQUE                                                     M. Westerlund
+Internet-Draft                                                  Ericsson
+Intended status: Standards Track                           15 April 2025
+Expires: 17 October 2025
+
+
+                      ECN support for Connect-UDP
+             draft-westerlund-masque-connect-udp-ecn-latest
+
+Abstract
+
+   HTTP's Extended Connect-UDP protocol enables a client to proxy a UDP
+   flow from the HTTP server towards a specified target IP address and
+   UDP port.  Both QUIC and RTP are transport protocols that uses UDP
+   and have support for using ECN and providing the necessary feedback.
+   Thus, there exist a benefit to enable an end-to-end QUIC or RTP
+   transport protocol connection/session to be able to use ECN.  This
+   document specifies how ECN can be supported through an extension to
+   the Connect-UDP protocol for HTTP.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-
+   connect-udp-ecn.html.  Status information for this document may be
+   found at https://datatracker.ietf.org/doc/draft-westerlund-masque-
+   connect-udp-ecn/.
+
+   Discussion of this document takes place on the MASQUE Working Group
+   mailing list (mailto:masque@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/masque/.  Subscribe at
+   https://www.ietf.org/mailman/listinfo/masque/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/gloinul/masque-ecn.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 17 October 2025.
+
+Copyright Notice
+
+   Copyright (c) 2025 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Context
+   3.  Negotiating ECN Usage
+   4.  Acknowledgments
+   5.  References
+     5.1.  Normative References
+     5.2.  Informative References
+   Author's Address
+
+1.  Introduction
+
+   Connect-UDP as currently defined limits the ECN [RFC3168] exchange
+   between the HTTP server and the target.  There is no support for
+   carrying the ECN bits between the HTTP Connect-UDP client and the
+   HTTP server proxying the UDP flow.  Thus, it is not possible to
+   establish the end-to-end ECN flow of information necessary to make
+   either ECN classic [RFC3168] or L4S [RFC9484].
+
+   To enable ECN usage end-to-end for transport protocols using UDP and
+   being proxied using the Connect-UDP extended connect over HTTP
+   additional extensions are needed.  This document specified the
+   necessary extension, defining a negotiation method and a new context
+   that carries the ECN bits and the UDP payload instead of the context
+   defined in [RFC9298].
+
+2.  Context
+
+3.  Negotiating ECN Usage
+
+4.  Acknowledgments
+
+5.  References
+
+5.1.  Normative References
+
+   [RFC3168]  Ramakrishnan, K., Floyd, S., and D. Black, "The Addition
+              of Explicit Congestion Notification (ECN) to IP",
+              RFC 3168, DOI 10.17487/RFC3168, September 2001,
+              <https://www.rfc-editor.org/rfc/rfc3168>.
+
+   [RFC9297]  Schinazi, D. and L. Pardue, "HTTP Datagrams and the
+              Capsule Protocol", RFC 9297, DOI 10.17487/RFC9297, August
+              2022, <https://www.rfc-editor.org/rfc/rfc9297>.
+
+   [RFC9298]  Schinazi, D., "Proxying UDP in HTTP", RFC 9298,
+              DOI 10.17487/RFC9298, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9298>.
+
+   [RFC9330]  Briscoe, B., Ed., De Schepper, K., Bagnulo, M., and G.
+              White, "Low Latency, Low Loss, and Scalable Throughput
+              (L4S) Internet Service: Architecture", RFC 9330,
+              DOI 10.17487/RFC9330, January 2023,
+              <https://www.rfc-editor.org/rfc/rfc9330>.
+
+5.2.  Informative References
+
+   [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
+              Notification (ECN) Experimentation", RFC 8311,
+              DOI 10.17487/RFC8311, January 2018,
+              <https://www.rfc-editor.org/rfc/rfc8311>.
+
+   [RFC9484]  Pauly, T., Ed., Schinazi, D., Chernyakhovsky, A.,
+              Kühlewind, M., and M. Westerlund, "Proxying IP in HTTP",
+              RFC 9484, DOI 10.17487/RFC9484, October 2023,
+              <https://www.rfc-editor.org/rfc/rfc9484>.
+
+Author's Address
+
+   Magnus Westerlund
+   Ericsson
+   Email: magnus.westerlund@ericsson.com
