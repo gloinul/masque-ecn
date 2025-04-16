@@ -76,12 +76,15 @@ Table of Contents
    1.  Introduction
    2.  ECN enabled UDP Proxying Payload
    3.  Negotiating ECN Usage
-   4.  Open Issues
-   5.  IANA Considerations
-   6.  Acknowledgments
-   7.  References
-     7.1.  Normative References
-     7.2.  Informative References
+   4.  Tunnel and ECN marking interactions
+     4.1.  Tunnel Endpoint Marking
+     4.2.  Tunnel Transport Connection Interactions
+   5.  Open Issues
+   6.  IANA Considerations
+   7.  Acknowledgments
+   8.  References
+     8.1.  Normative References
+     8.2.  Informative References
    Author's Address
 
 1.  Introduction
@@ -185,7 +188,57 @@ Table of Contents
    Context ID 5 and ID=3 with the default ID=0 as defined in [RFC9298],
    i.e. a plain UDP Payload.
 
-4.  Open Issues
+4.  Tunnel and ECN marking interactions
+
+4.1.  Tunnel Endpoint Marking
+
+   The Tunnel Endpoint when receiving an IP/UDP packet that is belonging
+   to an Connect-UDP request where the ECN extension is enabled copies
+   the the two ECN field bits from the IP header to the ECN field in the
+   HTTP datagram payload using an Context ID that has the ECN field.
+
+   A Tunnel endpoint on egress copies the ECN extension field value into
+   the IP/UDP packet it creates for this UDP Proxying payload.
+
+   An Tunnel endpoint which is unable to read or set the ECN Field SHALL
+   NOT enable the ECN extension.
+
+4.2.  Tunnel Transport Connection Interactions
+
+   The primary goal of the ECN extension is to enable ECN usage between
+   the proxy and the target and have the end-to-end transport react to
+   that ECN.  However, there exist different potential models for how to
+   provide ECN interactions for the tunnel, i.e. between HTTP client and
+   sever.  Which to do depends on how the tunnel is configured and what
+   other support one have implemented for the Connect-UDP protocol.
+
+   For HTTP tunnels not using HTTP/3 [RFC9114], HTTP/3 using data
+   streams, or HTTP/3 with datagrams but not disabling congestion
+   control, the tunnel will consist of one or possibly several chained
+   congestion controlled transport connections.  In this case ECN may be
+   enabled for each underlying transport connection independently.
+   However, it in this case it is not possible to have a one-to-one
+   marking between the lower layer ECN marking and the tunneled HTTP
+   datagrams and avoid reacting both on the tunnel transport and in the
+   end-to-end.  Instead the only real choice to have each HTTP layer hop
+   run an ECN marking AQM goverened by what it can transmit over the
+   transport connection that marks the ECN field in the HTTP datagram or
+   drops the HTTP datagram when a queue builds.  In other words each
+   HTTP transport connection is treated as one IP link on the end-to-end
+   chain.
+
+   For tunnels using HTTP/3 and Datagram and where the QUIC connection
+   is disabling congestion control on the packets containing HTTP
+   datagrams, as discsussed in Section 6 of [RFC9298], then the ECN
+   marking on the tunneled packets can be propogated between the IP
+   packet of the transport connection and the end-to-end packet.  This
+   reprensts a specific implementation of IP in IP Tunnels with Tightly
+   coupled Shim Headers as discussed in [RFC9601].  This is implemented
+   as Feed-Forward-and-Up as discussed in [RFC9599], and MUST use the
+   the normal mode on tunnel ingress, and follow the specified default
+   behavior on egress as defined by [RFC6040].
+
+5.  Open Issues
 
    As there would be no on the wire overhead to enable this field to
    carry the DSCP one can ask if there is a point to include this.  It
@@ -195,7 +248,7 @@ Table of Contents
    another extension in the future defines a capsule to define a context
    ID one can combine it with ECN?
 
-5.  IANA Considerations
+6.  IANA Considerations
 
    IANA is request to register one new permanent Field name in the
    Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
@@ -210,21 +263,28 @@ Table of Contents
 
    Reference: [RFC-TO-BE]
 
-6.  Acknowledgments
+7.  Acknowledgments
 
-7.  References
+8.  References
 
-7.1.  Normative References
+8.1.  Normative References
 
    [RFC3168]  Ramakrishnan, K., Floyd, S., and D. Black, "The Addition
               of Explicit Congestion Notification (ECN) to IP",
               RFC 3168, DOI 10.17487/RFC3168, September 2001,
               <https://www.rfc-editor.org/rfc/rfc3168>.
 
+   [RFC6040]  Briscoe, B., "Tunnelling of Explicit Congestion
+              Notification", RFC 6040, DOI 10.17487/RFC6040, November
+              2010, <https://www.rfc-editor.org/rfc/rfc6040>.
+
    [RFC9000]  Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
               Multiplexed and Secure Transport", RFC 9000,
               DOI 10.17487/RFC9000, May 2021,
               <https://www.rfc-editor.org/rfc/rfc9000>.
+
+   [RFC9114]  Bishop, M., Ed., "HTTP/3", RFC 9114, DOI 10.17487/RFC9114,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9114>.
 
    [RFC9297]  Schinazi, D. and L. Pardue, "HTTP Datagrams and the
               Capsule Protocol", RFC 9297, DOI 10.17487/RFC9297, August
@@ -240,11 +300,21 @@ Table of Contents
               DOI 10.17487/RFC9330, January 2023,
               <https://www.rfc-editor.org/rfc/rfc9330>.
 
+   [RFC9599]  Briscoe, B. and J. Kaippallimalil, "Guidelines for Adding
+              Congestion Notification to Protocols that Encapsulate IP",
+              BCP 89, RFC 9599, DOI 10.17487/RFC9599, August 2024,
+              <https://www.rfc-editor.org/rfc/rfc9599>.
+
+   [RFC9601]  Briscoe, B., "Propagating Explicit Congestion Notification
+              across IP Tunnel Headers Separated by a Shim", RFC 9601,
+              DOI 10.17487/RFC9601, August 2024,
+              <https://www.rfc-editor.org/rfc/rfc9601>.
+
    [RFC9651]  Nottingham, M. and P. Kamp, "Structured Field Values for
               HTTP", RFC 9651, DOI 10.17487/RFC9651, September 2024,
               <https://www.rfc-editor.org/rfc/rfc9651>.
 
-7.2.  Informative References
+8.2.  Informative References
 
    [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
               Notification (ECN) Experimentation", RFC 8311,
