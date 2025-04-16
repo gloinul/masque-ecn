@@ -41,11 +41,15 @@ informative:
 
 normative:
    RFC3168:
+   RFC6040:
+   RFC9000:
+   RFC9114:
    RFC9298:
    RFC9297:
    RFC9330:
+   RFC9599:
+   RFC9601:
    RFC9651:
-   RFC9000:
 
 
 --- abstract
@@ -167,6 +171,57 @@ The above example indicate supoprt of the ECN byte context and defines
 three Context IDs, Context ID=1 is combined with 4, ID=2 with Context ID 5
 and ID=3 with the default ID=0 as defined in {{RFC9298}}, i.e. a plain
 UDP Payload.
+
+# Tunnel and ECN marking interactions
+
+## Tunnel Endpoint Marking
+
+The Tunnel Endpoint when receiving an IP/UDP packet that is belonging
+to an Connect-UDP request where the ECN extension is enabled copies
+the the two ECN field bits from the IP header to the ECN field in the
+HTTP datagram payload using an Context ID that has the ECN field.
+
+A Tunnel endpoint on egress copies the ECN extension field value into the
+IP/UDP packet it creates for this UDP Proxying payload.
+
+An Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
+enable the ECN extension.
+
+
+## Tunnel Transport Connection Interactions
+
+The primary goal of the ECN extension is to enable ECN usage between
+the proxy and the target and have the end-to-end transport react to
+that ECN. However, there exist different potential models for how to
+provide ECN interactions for the tunnel, i.e. between HTTP client and
+sever. Which to do depends on how the tunnel is configured and what
+other support one have implemented for the Connect-UDP protocol.
+
+For HTTP tunnels not using HTTP/3 {{RFC9114}}, HTTP/3 using data
+streams, or HTTP/3 with datagrams but not disabling congestion
+control, the tunnel will consist of one or possibly several chained
+congestion controlled transport connections. In this case ECN may be
+enabled for each underlying transport connection
+independently. However, it in this case it is not possible to have a
+one-to-one marking between the lower layer ECN marking and the
+tunneled HTTP datagrams and avoid reacting both on the tunnel
+transport and in the end-to-end. Instead the only real choice to have
+each HTTP layer hop run an ECN marking AQM goverened by what it can
+transmit over the transport connection that marks the ECN field in the
+HTTP datagram or drops the HTTP datagram when a queue builds. In other
+words each HTTP transport connection is treated as one IP link on the
+end-to-end chain.
+
+For tunnels using HTTP/3 and Datagram and where the QUIC connection is
+disabling congestion control on the packets containing HTTP datagrams,
+as discsussed in Section 6 of {{RFC9298}}, then the ECN marking on the
+tunneled packets can be propogated between the IP packet of the
+transport connection and the end-to-end packet. This reprensts a
+specific implementation of IP in IP Tunnels with Tightly coupled Shim
+Headers as discussed in {{RFC9601}}. This is implemented as
+Feed-Forward-and-Up as discussed in {{RFC9599}}, and MUST use the the
+normal mode on tunnel ingress, and follow the specified default
+behavior on egress as defined by {{RFC6040}}.
 
 
 # Open Issues
