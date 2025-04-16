@@ -74,17 +74,19 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  ECN enabled UDP Proxying Payload
-   3.  Negotiating ECN Usage
-   4.  Tunnel and ECN marking interactions
-     4.1.  Tunnel Endpoint Marking
-     4.2.  Tunnel Transport Connection Interactions
-   5.  Open Issues
-   6.  IANA Considerations
-   7.  Acknowledgments
-   8.  References
-     8.1.  Normative References
-     8.2.  Informative References
+   2.  Conventions
+   3.  ECN enabled UDP Proxying Payload
+   4.  Negotiating ECN Usage
+   5.  Tunnel and ECN marking interactions
+     5.1.  Tunnel Endpoint Marking
+     5.2.  Tunnel Transport Connection Interactions
+     5.3.  QUIC Aware Forwarding
+   6.  Open Issues
+   7.  IANA Considerations
+   8.  Acknowledgments
+   9.  References
+     9.1.  Normative References
+     9.2.  Informative References
    Author's Address
 
 1.  Introduction
@@ -114,7 +116,15 @@ Table of Contents
    extensions this defines a context ID that indicates that it carries
    the ECN field and then is followed by another Context ID.
 
-2.  ECN enabled UDP Proxying Payload
+2.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  ECN enabled UDP Proxying Payload
 
    The HTTP Datagram Payload format is defined in [RFC9484] as depicted
    below.
@@ -130,19 +140,19 @@ Table of Contents
    way:
 
  ECN carrying UDP Proxying Payload {
-   ECN(2),
    Reserved(6),
+   ECN(2),
    UDP Proxying Payload (..) # Payload per another Context ID definition
  }
 
               Figure 2: ECN carrying UDP Proxying Payload
 
+   Reserved: six bits currently reserved, SHALL be set to zero (0) on
+   transmission, and ignored on reception.
+
    ECN: A two bit field carrying the IP ECN bits as defined by Section 5
    of [RFC3168] to be set or as received on the IP/UDP packet carrying
    the UDP Datagram payload included.
-
-   Reserved: six bits currently reserved, SHALL be set to zero (0) on
-   transmission, and ignored on reception.
 
    UDP Proxying Payload: Another UDP Proxying Payload following the ECN
    carrying byte.  This uses another Context ID as negotiated, e.g.
@@ -153,7 +163,7 @@ Table of Contents
    It also MUST negotiate what the context ID of the UDP Proxying
    payload included.
 
-3.  Negotiating ECN Usage
+4.  Negotiating ECN Usage
 
    ECN-Context-ID is an Structured Header Field [RFC9651].  Its value is
    a List consisting of zero or more Inner Lists, where the Inner List
@@ -188,9 +198,9 @@ Table of Contents
    Context ID 5 and ID=3 with the default ID=0 as defined in [RFC9298],
    i.e. a plain UDP Payload.
 
-4.  Tunnel and ECN marking interactions
+5.  Tunnel and ECN marking interactions
 
-4.1.  Tunnel Endpoint Marking
+5.1.  Tunnel Endpoint Marking
 
    The Tunnel Endpoint when receiving an IP/UDP packet that is belonging
    to an Connect-UDP request where the ECN extension is enabled copies
@@ -203,7 +213,7 @@ Table of Contents
    An Tunnel endpoint which is unable to read or set the ECN Field SHALL
    NOT enable the ECN extension.
 
-4.2.  Tunnel Transport Connection Interactions
+5.2.  Tunnel Transport Connection Interactions
 
    The primary goal of the ECN extension is to enable ECN usage between
    the proxy and the target and have the end-to-end transport react to
@@ -238,7 +248,19 @@ Table of Contents
    the normal mode on tunnel ingress, and follow the specified default
    behavior on egress as defined by [RFC6040].
 
-5.  Open Issues
+5.3.  QUIC Aware Forwarding
+
+   A HTTP endpoint that supports this extension and QUIC Aware
+   Forwarding [I-D.ietf-masque-quic-proxy] MUST preserve ECN markings on
+   forwarded packets in both directions, to ensure ECN functions end-to-
+   end.  Using this extension in combination with the QUIC aware
+   forwarding instead of only QUIC aware forwarding also ensure that one
+   don't get ECN black holes on some packets, like long header packets
+   or for packets sent at any point when the QUIC Aware forwarding isn't
+   yet established for short header packets.  Thus supporting both
+   ensures a consistent ECN experience.
+
+6.  Open Issues
 
    As there would be no on the wire overhead to enable this field to
    carry the DSCP one can ask if there is a point to include this.  It
@@ -248,7 +270,7 @@ Table of Contents
    another extension in the future defines a capsule to define a context
    ID one can combine it with ECN?
 
-6.  IANA Considerations
+7.  IANA Considerations
 
    IANA is request to register one new permanent Field name in the
    Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
@@ -263,11 +285,23 @@ Table of Contents
 
    Reference: [RFC-TO-BE]
 
-7.  Acknowledgments
+8.  Acknowledgments
 
-8.  References
+9.  References
 
-8.1.  Normative References
+9.1.  Normative References
+
+   [I-D.ietf-masque-quic-proxy]
+              Pauly, T., Rosenberg, E., and D. Schinazi, "QUIC-Aware
+              Proxying Using HTTP", Work in Progress, Internet-Draft,
+              draft-ietf-masque-quic-proxy-05, 3 March 2025,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
+              quic-proxy-05>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
 
    [RFC3168]  Ramakrishnan, K., Floyd, S., and D. Black, "The Addition
               of Explicit Congestion Notification (ECN) to IP",
@@ -277,6 +311,10 @@ Table of Contents
    [RFC6040]  Briscoe, B., "Tunnelling of Explicit Congestion
               Notification", RFC 6040, DOI 10.17487/RFC6040, November
               2010, <https://www.rfc-editor.org/rfc/rfc6040>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
    [RFC9000]  Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
               Multiplexed and Secure Transport", RFC 9000,
@@ -314,7 +352,7 @@ Table of Contents
               HTTP", RFC 9651, DOI 10.17487/RFC9651, September 2024,
               <https://www.rfc-editor.org/rfc/rfc9651>.
 
-8.2.  Informative References
+9.2.  Informative References
 
    [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
               Notification (ECN) Experimentation", RFC 8311,
