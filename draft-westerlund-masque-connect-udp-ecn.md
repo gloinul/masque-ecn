@@ -40,6 +40,7 @@ informative:
 
 
 normative:
+   I-D.ietf-masque-quic-proxy:
    RFC3168:
    RFC6040:
    RFC9000:
@@ -92,7 +93,9 @@ avoid having to be redefined for each combination with other
 extensions this defines a context ID that indicates that it carries
 the ECN field and then is followed by another Context ID.
 
+# Conventions
 
+{::boilerplate bcp14}
 
 # ECN enabled UDP Proxying Payload
 
@@ -112,23 +115,24 @@ The ECN carrying UDP Proxying Payload is defined in the following way:
 
 ~~~ ascii-art
 ECN carrying UDP Proxying Payload {
-  ECN(2),
   Reserved(6),
+  ECN(2),
   UDP Proxying Payload (..) # Payload per another Context ID definition
 }
 ~~~
 {: #UDP-Proxying-Payload title="ECN carrying UDP Proxying Payload"}
 
+Reserved: six bits currently reserved, SHALL be set to zero (0) on
+    transmission, and ignored on reception.
+
 ECN: A two bit field carrying the IP ECN bits as defined by Section 5
     of {{RFC3168}} to be set or as received on the IP/UDP packet
     carrying the UDP Datagram payload included.
 
-Reserved: six bits currently reserved, SHALL be set to zero (0) on
-    transmission, and ignored on reception.
-
 UDP Proxying Payload: Another UDP Proxying Payload following the ECN
-carrying byte. This uses another Context ID as negotiated, e.g. Context ID 0.
-Thus enabling this byte to be combined with any other payload.
+    carrying byte. This uses another Context ID as negotiated,
+    e.g. Context ID 0.  Thus enabling this byte to be combined with
+    any other payload.
 
 This format will use a negotiated context ID that MUST be non-zero. It also
 MUST negotiate what the context ID of the UDP Proxying payload included.
@@ -223,6 +227,17 @@ Feed-Forward-and-Up as discussed in {{RFC9599}}, and MUST use the the
 normal mode on tunnel ingress, and follow the specified default
 behavior on egress as defined by {{RFC6040}}.
 
+## QUIC Aware Forwarding
+
+A HTTP endpoint that supports this extension and QUIC Aware Forwarding
+{{I-D.ietf-masque-quic-proxy}} MUST preserve ECN markings on forwarded
+packets in both directions, to ensure ECN functions end-to-end. Using
+this extension in combination with the QUIC aware forwarding instead
+of only QUIC aware forwarding also ensure that one don't get ECN black
+holes on some packets, like long header packets or for packets sent at
+any point when the QUIC Aware forwarding isn't yet established for
+short header packets. Thus supporting both ensures a consistent ECN
+experience.
 
 # Open Issues
 
