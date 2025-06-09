@@ -37,7 +37,8 @@ author:
 informative:
    RFC8311:
    RFC9484:
-
+   I-D.schinazi-masque-connect-udp-ecn:
+   I-D.ietf-quic-multipath:
 
 normative:
    I-D.ietf-masque-quic-proxy:
@@ -74,30 +75,84 @@ HTTP server and the target. There is no support for carrying the ECN
 bits between the HTTP Connect-UDP client and the HTTP server proxying
 the UDP flow. Thus, it is not possible to establish the end-to-end ECN
 flow of information necessary to make either ECN classic {{RFC3168}}
-or L4S {{RFC9484}}.
+or L4S {{RFC9484}} function.
 
 To enable ECN usage end-to-end for transport protocols using UDP and
 being proxied using the Connect-UDP extended connect over HTTP
-additional extensions are needed. This document specified the necessary
-extension, defining a negotiation method and a new context that carries
-the ECN bits and the UDP payload instead of the context defined in {{RFC9298}}.
+additional extensions are needed. This document specifies the
+necessary extension, defining two methods, one possible having no
+additional overhead by encoding in the context ID, the other carrying
+both DSCP and ECN. For these negotiation is specified and a new context that
+carries the DSCP and ECN bits and the UDP payload instead of the context
+defined in {{RFC9298}}.
 
 An alternative to using this extension would be to use Connect-IP
 {{RFC9484}}, however that results in that one carries a full IP header
 between the HTTP client and HTTP server. That results in significantly
-more overhead compared to this extension that adds one byte for containing
-the ECN bits.
+more overhead compared to this extension that adds zero or one byte
+for containing both the DSCP and ECN bits.
 
 To define a solution that can be combined with other contexts and
 avoid having to be redefined for each combination with other
-extensions this defines a context ID that indicates that it carries
-the ECN field and then is followed by another Context ID.
+extensions this defines context IDs that indicates that it carries
+the ECN and DSCP and then is followed by another Context ID. The
+ECN encoding in the context ID defines three additional Context ID
+that can be bound to following Context ID to indicate ECT(0), ECT(1),
+or CE.
+
+An endpoint should not enable both of the alternatives in this
+document as that would lead to confusion on when to use the DSCP
+carrying extension.
 
 # Conventions
 
 {::boilerplate bcp14}
 
-# ECN enabled UDP Proxying Payload
+# ECN encoded in Context ID {#sec-CID-ECN}
+
+For a likely zero overhead encoding of the ECN bits, the ECN bits
+can be indicated by using different context ID values followed by
+the context that would otherwise have been used, often the basic
+UDP payload context (CID=0) as defined by {{RFC9298}}.
+
+The core of this solution is to define for a Connect-UDP stream define
+additioanl Context IDs (A, B, and C) that are used to indicate the
+ECN values that are not Not-ECT, i.e. ECT(1), ECT(0), CE {{RFC3168}}. This idea is shown in {{ECN-Encoding-Table}}.
+
+| CID Value | ECN bit | ECN Value  | Original CID Value
+| 0 | 0b00 | Not-ECT | 0
+| A | 0b01 | ECT(1) | 0
+| B | 0b10 | ECT(0) | 0
+| C | 0b11 | CE | 0
+{: #ECN-Encoding-Table title="ECN Encoding Table" cols="r l l l"}
+
+No new CID value is defined to represent Not-ECT, as using a Context
+value without this extension by default would be not-ECT. Then additionally
+CIDs are defined to represent the combination of an ECN value other than
+Not-ECT and the original CID. If the application used more CID values than
+just zero, then additional CID values will have to be defined. This extension
+is likely to result in three times additioanl CIDs will be needed in the
+Connect-UDP stream. We expect that this will be acceptable in most cases
+as a total of 64 CIDs can be encoded as a single byte, thus resulting
+in no packet expansion. However for applications that has more than
+16 original CIDs (including zero) it is possible to consider using the
+ECN and DSCP context {{sec-DSCP-ECN}} which only double the number of
+CIDs.
+
+A endpoint enabling this extension MUST define all three of the
+Not-ECT ECN values. This despite that an ECN application working as
+intened would expect to see only the one the one ECT values the
+endpoint uses and the CE code. However, if there are transmission
+errors or remarking errors in the network also the other ECT codepoint
+as well as Not-ECT may be needed to transmitt.
+
+Negotiation of the CID values to use are defined using both
+HTTP headers and Capsulses in {{sec-DSCP-ECN}}.
+
+
+# ECN and DSCP enabled UDP Proxying Payload {#sec-DSCP-ECN}
+
+
 
 The HTTP Datagram Payload format is defined in {{RFC9484}} as depicted below.
 
@@ -115,14 +170,14 @@ The ECN carrying UDP Proxying Payload is defined in the following way:
 
 ~~~ ascii-art
 ECN carrying UDP Proxying Payload {
-  Reserved(6),
+  DSCP(6),
   ECN(2),
   UDP Proxying Payload (..) # Payload per another Context ID definition
 }
 ~~~
 {: #UDP-Proxying-Payload title="ECN carrying UDP Proxying Payload"}
 
-Reserved: six bits currently reserved, SHALL be set to zero (0) on
+DSCP: six bits currently reserved, SHALL be set to zero (0) on
     transmission, and ignored on reception.
 
 ECN: A two bit field carrying the IP ECN bits as defined by Section 5
@@ -138,7 +193,7 @@ This format will use a negotiated context ID that MUST be non-zero. It also
 MUST negotiate what the context ID of the UDP Proxying payload included.
 
 
-# Negotiating ECN Usage
+# Negotiating ECN Usage {#sec-neg-ECN}
 
 
 ECN-Context-ID is an Structured Header Field {{RFC9651}}. Its value
@@ -176,23 +231,47 @@ three Context IDs, Context ID=1 is combined with 4, ID=2 with Context ID 5
 and ID=3 with the default ID=0 as defined in {{RFC9298}}, i.e. a plain
 UDP Payload.
 
-# Tunnel and ECN marking interactions
+
+# Tunnels and DSCP and ECN marking interactions
 
 ## Tunnel Endpoint Marking
 
 The Tunnel Endpoint when receiving an IP/UDP packet that is belonging
-to an Connect-UDP request where the ECN extension is enabled copies
-the the two ECN field bits from the IP header to the ECN field in the
-HTTP datagram payload using an Context ID that has the ECN field.
+to an Connect-UDP request where the ECN+DSCP extension is enabled
+copies the the six DSCP bits and the two ECN field bits from the IP
+header to the DSCP and ECN fields respectively in the HTTP datagram
+payload using the relevant Context ID. If using the ECN only
+extension the two ECN bits in the incoming IP/UDP packet are used to select
+which CID value should be used.
 
-A Tunnel endpoint on egress copies the ECN extension field value into the
-IP/UDP packet it creates for this UDP Proxying payload.
+For the DSCP+ECN extension a Tunnel endpoint on egress copies the DSCP
+and ECN extension field value into the IP/UDP packet it creates for
+this UDP Proxying payload. For the ECN extension the CID value is
+used to determine which value to write in the outgoing IP/UDP packets
+ECN field.
 
 An Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
 enable the ECN extension.
 
+## DSCP Remarking Considerations
 
-## Tunnel Transport Connection Interactions
+The tunnel may interconnect two different adminstrative domains
+that uses the DSCP values differently. Thus, the endpoints likely
+need to perform remarking of the DSCP field values the same as a
+inter domain router would. Depending on use cases and deployment
+the HTTP client can be in different actual network domains with
+different DSCP usages. An HTTP server that based on user identification
+connects the HTTP client to different network domains behind it may
+also need to support multiple external domains.
+
+The above complications in handling DSCP makes it impossible
+to provide a standarized remarking instruction. Instead the
+deployment will have to define if remarking is handled by the HTTP
+server, the HTTP client, or both considering the tunnel a specific
+network domain in itself.
+
+
+## Tunnel Transport Connection ECN Interactions
 
 The primary goal of the ECN extension is to enable ECN usage between
 the proxy and the target and have the end-to-end transport react to
@@ -227,6 +306,34 @@ Feed-Forward-and-Up as discussed in {{RFC9599}}, and MUST use the the
 normal mode on tunnel ingress, and follow the specified default
 behavior on egress as defined by {{RFC6040}}.
 
+## Tunnel Transport Connection DSCP Interactions
+
+For HTTP tunnels not using HTTP/3 {{RFC9114}}, HTTP/3 using data
+streams, or HTTP/3 with datagrams but not disabling congestion
+control, the tunnel will consist of one or possibly several chained
+congestion controlled transport connections. These transport
+connections will only be able to use a single DSCP code point to avoid
+inconsistent network treatment that might confuse the congestion
+controller and retransmission mechanism. Thus, even if the tunneled
+packets are using different DSCP, the transport connection will have
+to settle for using a single DSCP of suitable value. This unless the
+Multipath extension for QUIC {{I-D.ietf-quic-multipath}} is used,
+where each path can have a different DSCP value. In this later case
+packets with different DSCP values could be mapped to different paths
+with the approparite network treatment as indicated by the DSCP value.
+
+For tunnels using HTTP/3 and Datagram and where the QUIC connection is
+disabling congestion control on the packets containing HTTP datagrams,
+as discsussed in Section 6 of {{RFC9298}}, the QUIC packets could be
+marked using the most suitable DSCP value based on the encapsualted
+packet.  In cases where the tunnel connection is sent in a different
+network domain than the one the tunneled packet was received on, a
+suitable remapping needs to occur to the domain the tunnel packet will
+be sent to. The HTTP tunnel MUST not coalesce different tunneled
+payloads which are not mapped to the same DSCP in the same QUIC packet.
+
+
+
 ## QUIC Aware Forwarding
 
 A HTTP endpoint that supports this extension and QUIC Aware Forwarding
@@ -239,17 +346,15 @@ any point when the QUIC Aware forwarding isn't yet established for
 short header packets. Thus supporting both ensures a consistent ECN
 experience.
 
+
+
 # Open Issues
 
-As there would be no on the wire overhead to enable this field to
-carry the DSCP one can ask if there is a point to include this. It
-would however require more work to define.
 
-Do we need to define a Context ID negotiation Capsule so that if another
-extension in the future defines a capsule to define a context ID one
-can combine it with ECN?
 
 # IANA Considerations
+
+## HTTP Field Name
 
 IANA is request to register one new permanent Field name in the
 Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
@@ -264,10 +369,14 @@ https://www.iana.org/assignments/http-fields/http-fields.xhtml).
 
    Reference: [RFC-TO-BE]
 
+## HTTP Capsule Type
+
 
 
 
 # Acknowledgments
 
+This draft takes insperation from David Schinazi's An ECN Extension to
+Connect-UDP {{I-D.schinazi-masque-connect-udp-ecn}}.
 
 --- back
