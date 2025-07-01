@@ -1,13 +1,13 @@
 <!-- regenerate: on (set to off if you edit this file) -->
 
-# ECN support for Connect-UDP
+# ECN and DSCP support for HTTPS's Connect-UDP
 
-This is the working area for the individual Internet-Draft, "ECN support for Connect-UDP".
+This is the working area for the individual Internet-Draft, "ECN and DSCP support for HTTPS's Connect-UDP".
 
-* [Editor's Copy](https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-connect-udp-ecn.html)
-* [Datatracker Page](https://datatracker.ietf.org/doc/draft-westerlund-masque-connect-udp-ecn)
-* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-westerlund-masque-connect-udp-ecn)
-* [Compare Editor's Copy to Individual Draft](https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-connect-udp-ecn.diff)
+* [Editor's Copy](https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-connect-udp-ecn-dscp.html)
+* [Datatracker Page](https://datatracker.ietf.org/doc/draft-westerlund-masque-connect-udp-ecn-dscp)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-westerlund-masque-connect-udp-ecn-dscp)
+* [Compare Editor's Copy to Individual Draft](https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-connect-udp-ecn-dscp.diff)
 
 
 ## Contributing
