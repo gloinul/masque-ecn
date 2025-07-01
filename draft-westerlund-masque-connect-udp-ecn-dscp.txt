@@ -4,12 +4,12 @@
 
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
-Intended status: Standards Track                             9 June 2025
-Expires: 11 December 2025
+Intended status: Standards Track                             1 July 2025
+Expires: 2 January 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
-             draft-westerlund-masque-connect-udp-ecn-latest
+          draft-westerlund-masque-connect-udp-ecn-dscp-latest
 
 Abstract
 
@@ -30,7 +30,7 @@ About This Document
    https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-
    connect-udp-ecn.html.  Status information for this document may be
    found at https://datatracker.ietf.org/doc/draft-westerlund-masque-
-   connect-udp-ecn/.
+   connect-udp-ecn-dscp/.
 
    Discussion of this document takes place on the MASQUE Working Group
    mailing list (mailto:masque@ietf.org), which is archived at
@@ -55,7 +55,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 December 2025.
+   This Internet-Draft will expire on 2 January 2026.
 
 Copyright Notice
 
