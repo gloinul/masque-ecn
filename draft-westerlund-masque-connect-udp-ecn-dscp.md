@@ -415,7 +415,7 @@ server, the HTTP client, or both considering the tunnel a specific
 network domain in itself.
 
 
-## Tunnel Transport Connection ECN Interactions
+## Tunnel Transport Connection ECN Interactions and Congestion Control
 
 The primary goal of the ECN extension is to enable ECN usage between
 the proxy and the target and have the end-to-end transport react to
@@ -424,16 +424,16 @@ provide ECN interactions for a tunnel, i.e. between the HTTP client and
 sever. Which one to use depends on how the tunnel is configured and what
 other support is implemented for the Connect-UDP protocol.
 
-For HTTP tunnels not using HTTP/3 {{RFC9114}}, HTTP/3 using data
-streams, or HTTP/3 with datagrams but not disabling congestion
-control, the tunnel will consist of one or possibly several chained
-congestion controlled transport connections. In this case, ECN might be
+For HTTP tunnels (that not not using HTTP/3 {{RFC9114}}, HTTP/3 using data
+streams, or HTTP/3 with datagrams without congestion
+control), the each tunnel is one
+congestion-controlled transport connections. In this case, ECN needs to be
 enabled for each underlying transport connection
-independently. However, in this case it is not possible to have a
+independently. That means it is not possible to have a
 one-to-one marking between the lower layer ECN marking and the
 tunneled HTTP datagrams to avoid reacting twice, on the tunnel
-transport and in the end-to-end connection. Instead the only real choice to have
-each HTTP layer hop run an ECN marking AQM to set ECN marks or drops the HTTP datagram when a queue builds.
+transport and in the end-to-end connection. Instead
+each HTTP hop needs to run an AQM to set ECN marks or drops the HTTP datagram.
 In other words, each HTTP transport connection is treated as one IP link on the
 end-to-end chain.
 
@@ -475,7 +475,7 @@ be sent to. The HTTP tunnel MUST not coalesce different tunneled
 payloads which are not mapped to the same DSCP value in the same QUIC packet.
 
 
-## QUIC Aware Forwarding
+## Usage with the QUIC Aware Forwarding extension
 
 A HTTP endpoint that supports this extension and QUIC Aware Forwarding
 {{I-D.ietf-masque-quic-proxy}} MUST preserve ECN markings on forwarded
