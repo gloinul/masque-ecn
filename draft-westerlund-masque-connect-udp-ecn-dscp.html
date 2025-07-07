@@ -9,12 +9,11 @@
 <meta content="
        HTTP's Extended Connect's Connect-UDP protocol enables a client to
 proxy a UDP flow from the HTTP server towards a specified target IP
-address and UDP port. Both QUIC and RTP are transport protocols that
-uses UDP and have support Explicit Congestion Notification (ECN) by providing the necessary
-feedback. Thus, it is benefitial to enable an end-to-end QUIC connections or
-Real-time transport protocol (RTP) sessions to use ECN. This
-document specifies how ECN and DSCP can be supported through an
-extension to the Connect-UDP protocol for HTTP. 
+address and UDP port. QUIC and Real-time transport protocol (RTP) are examples
+of transport protocols that use UDP and support Explicit Congestion
+Notification (ECN) and provide the necessary feedback. This document specifies
+how ECN and DSCP can be supported through an extension to the Connect-UDP
+protocol for HTTP. 
     " name="description">
 <meta content="xml2rfc 3.29.0" name="generator">
 <meta content="quic" name="keyword">
@@ -1097,12 +1096,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">HTTP's Extended Connect's Connect-UDP protocol enables a client to
 proxy a UDP flow from the HTTP server towards a specified target IP
-address and UDP port. Both QUIC and RTP are transport protocols that
-uses UDP and have support Explicit Congestion Notification (ECN) by providing the necessary
-feedback. Thus, it is benefitial to enable an end-to-end QUIC connections or
-Real-time transport protocol (RTP) sessions to use ECN. This
-document specifies how ECN and DSCP can be supported through an
-extension to the Connect-UDP protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+address and UDP port. QUIC and Real-time transport protocol (RTP) are examples
+of transport protocols that use UDP and support Explicit Congestion
+Notification (ECN) and provide the necessary feedback. This document specifies
+how ECN and DSCP can be supported through an extension to the Connect-UDP
+protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1223,7 +1221,7 @@ extension to the Connect-UDP protocol for HTTP.<a href="#section-abstract-1" cla
                 <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-tunnel-transport-connection-" class="internal xref">Tunnel Transport Connection DSCP Interactions</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5">
-                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-usage-with-the-quic-aware-f" class="internal xref">Usage with the QUIC Aware Forwarding extension</a></p>
+                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-quic-aware-forwarding" class="internal xref">QUIC Aware Forwarding</a></p>
 </li>
             </ul>
 </li>
@@ -1283,39 +1281,34 @@ extension to the Connect-UDP protocol for HTTP.<a href="#section-abstract-1" cla
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">Connect-UDP as currently defined limits the Explicit Congestion Notification (ECN) <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> exchange between the
-HTTP server and the target. There is no support for carrying the ECN
-bits between the HTTP Connect-UDP client and the HTTP server proxying
-the UDP flow. Thus, it is not possible to establish the end-to-end ECN
-flow of information necessary to support either classic ECN <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span>
-or L4S <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">Diffserv <span>[<a href="#RFC2475" class="cite xref">RFC2475</a>]</span> enables differential network treatment of
-packets. Connect-UDP as currently defined lacks support for carrying
-the value of the DSCP field <span>[<a href="#RFC2474" class="cite xref">RFC2474</a>]</span> through the tunnel.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">As such additional extensions are needed to enable DSCP and ECN usage end-to-end for UDP-based transport protocols
-that are proxied by Connect-UDP extended connect over HTTP. This document specifies two such
-extensions: The ECN-zero-bytes extension without additional overhead by encoding the ECN value directly into the context ID;
-and the ECN/DSCP extension that
-carries both DSCP and ECN in the HTTP Datagram payload. For these two
-extensions negotiation is specified and a new Datagram context that
-carries the DSCP and ECN bits and the UDP payload instead of the
-context defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">An alternative to using this extension would be to use Connect-IP
-<span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>, however, that that approach carries a full IP header
-between the HTTP client and HTTP server which results in significantly
-more overhead compared to these extensions that add zero or one byte
-for ECN bits and DSCP values.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">To define a solution that can be combined with other extension and as
-such other contexts instead of redefining each combination with other
-extensions, the extensions defined in this document indicates not only the
-ECN and DSCP values but also the next following Context ID. The ECN-zero-bytes
-extension defines three additional Context ID
-values that are bound to a HTTP Datagram payload identifying Context
-ID and indicates if the packet was marked with ECT(0), ECT(1), or CE
-respectively.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">An endpoint should not enable both of the extension defined in this
-document as that would lead to confusion if both extension would indicate
-a different ECN value.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-1">Connect-UDP, as currently defined, limits the Explicit Congestion Notification
+(ECN) <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> exchange between the HTTP server and the target. There is no
+support for carrying the ECN bits between the HTTP Connect-UDP client and the
+HTTP server proxying the UDP flow. Thus, it is not possible to establish the
+end-to-end ECN information flow necessary to support either classic ECN
+<span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> or L4S <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Diffserv <span>[<a href="#RFC2475" class="cite xref">RFC2475</a>]</span> enables differential network treatment of packets.
+Connect-UDP, as currently defined, lacks support for carrying the DSCP
+field <span>[<a href="#RFC2474" class="cite xref">RFC2474</a>]</span> through the tunnel.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This document specifies two Connect-UDP extensions that enable end-to-end ECN
+and DSCP for proxied connections: an ECN-zero-bytes extension, which adds no
+overhead by encoding the ECN value directly into the Context ID; and an
+ECN/DSCP extension, which carries both DSCP and ECN in the HTTP Datagram
+payload. For these two extensions, this document specifies negotiation and
+defines a new Datagram context that carries the DSCP and ECN bits and the UDP
+payload, replacing the context defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">An alternative to this extension is Connect-IP <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>; however, it carries
+a full IP header between the HTTP client and server, resulting in significantly
+more overhead than this extension, which requires zero or one byte to carry
+both the DSCP and ECN bits.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">To define a solution that can be combined with other extensions, and thus other
+contexts, without redefining each combination, the extensions defined in this
+document indicate not only the ECN and DSCP values but also the next Context ID.
+The ECN-zero-bytes extension defines three additional Context ID values that are
+bound to an HTTP Datagram payload identifying the Context ID and indicate whether
+the packet was marked with ECT(0), ECT(1), or CE, respectively.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">An endpoint should not enable both extensions defined in this document, as that
+would lead to confusion if both extensions indicate different ECN values.<a href="#section-1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions">
@@ -1330,22 +1323,20 @@ described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</s
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="sec-CID-ECN">
+<div id="sec-CONTEXT-ECN">
 <section id="section-3">
       <h2 id="name-ecn-zero-byte-extension">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-ecn-zero-byte-extension" class="section-name selfRef">ECN-zero-byte Extension</a>
       </h2>
-<p id="section-3-1">For a zero overhead encoding, the ECN bits
-can be indicated by using different context ID.
-At the same time the context ID indicates what context ID
-would otherwise have been used to identify the structure of the rest of the HTTP payload,
-which we call the payload-identifying conext ID or short payload ID.
-Often this isthe basic
-UDP payload context (context ID=0) as defined by <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The core of this solution is to define for a Connect-UDP stream
-additioanl Context IDs (A, B, and C) that are used to indicate the ECN
-values that are not Not-ECT, i.e. ECT(1), ECT(0), CE <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span>. This
-idea is shown in <a href="#ECN-Encoding-Table" class="auto internal xref">Table 1</a>.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-1">For a zero-overhead encoding, the ECN bits can be indicated by using different
+Context IDs. At the same time, the Context ID indicates which Context ID would
+otherwise have been used to identify the structure of the rest of the HTTP
+payload, which we call the payload-identifying context ID, or short payload
+ID. Often this is the basic UDP-payload context (Context ID 0) as defined by
+<span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">The core of this solution is to define additional Context IDs (A, B, and C) for
+a Connect-UDP stream that indicate ECN values other than Not-ECT, i.e., ECT(1),
+ECT(0), or CE <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span>. This idea is shown in <a href="#ECN-Encoding-Table" class="auto internal xref">Table 1</a>.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <span id="name-ecn-encoding-table"></span><div id="ECN-Encoding-Table">
 <table class="center" id="table-1">
         <caption>
@@ -1388,25 +1379,22 @@ idea is shown in <a href="#ECN-Encoding-Table" class="auto internal xref">Table 
         </tbody>
       </table>
 </div>
-<p id="section-3-4">No new context ID value is defined to represent Not-ECT, as using a Context
-value without this extension by default would be not-ECT.
-Additionally context IDs are defined to represent the combination of an ECN
-value other than Not-ECT and the actual payload-identifying context
-ID. If the application uses more context ID values than just zero,
-additional context ID values need to be defined.<a href="#section-3-4" class="pilcrow">¶</a></p>
-<p id="section-3-5">This extension results in four times the number of conext IDs within one
-Connect-UDP stream. We expect that is acceptable in most
-cases as a total of 64 context IDs can be encoded as a single byte, thus
-resulting in no packet expansion. However for applications that have
-more than 16 original context IDs (including zero) it is recommened to
-use the ECN/DSCP extension <a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a> which only doubles the
-number of context IDs but requires an additional byte in the payload.<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">A endpoint enabling this extension MUST define all three of the
-Not-ECT ECN values, even if the ECN-enables application
-expects that only one ECT value (and CE) is used.
-This is because of transmission errors or erronous
-remarking in the network where also the other ECT codepoint as well as
-Not-ECT may observed.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-4">No new Context ID value is defined to represent Not-ECT, since using a Context
+ID without this extension would, by default, imply Not-ECT. Additionally,
+Context IDs are defined to represent the combination of an ECN value other than
+Not-ECT and the payload-identifying Context ID. If an application uses more
+Context ID values than just zero, additional Context IDs must be defined.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">This extension results in four times as many Context IDs within a single
+Connect-UDP stream. We expect that this is acceptable in most cases, as a total
+of 64 Context IDs can be encoded in a single byte, thus resulting in no packet
+expansion. However, for applications that have more than 16 original Context IDs
+(including zero), it is recommended to use the ECN/DSCP extension
+<a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>, which only doubles the number of Context IDs but requires an
+additional byte in the payload.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">An endpoint enabling this extension MUST define all three ECN values, even if
+the ECN-enabled application expects that only one ECT value (and CE) is used.
+This is because of transmission errors or erroneous remarking in the network,
+where the other ECT codepoint, as well as Not-ECT, may be observed.<a href="#section-3-6" class="pilcrow">¶</a></p>
 <p id="section-3-7">Negotiation of the conetxt ID values is defined using both
 HTTP headers and capsulses in <a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>.<a href="#section-3-7" class="pilcrow">¶</a></p>
 </section>
@@ -1467,22 +1455,22 @@ MUST also negotiate the payload-identifying context ID.<a href="#section-4-8" cl
       </h2>
 <p id="section-5-1">This section defines capability negotation and Context ID
 configuration for the two defined extensions.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">Note that context IDs are defined as QUIC varints, see section
-16 of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> and do support value up to
-4,611,686,018,427,387,903, which is larger than what an Structure
-Header Integer support, which is limited to 999,999,999,999,999. We
-forsee no issues with this limitations as context identifiers should
-primiarly use the single byte representation for efficiency
-reason, i.e. context IDs should rarely be above the value 63.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-2">Note that Context Identifiers are defined as QUIC varints (see Section 16 of
+<span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) and support values up to 4,611,686,018,427,387,903, which is
+larger than what a Structure Header Integer supports (limited to
+999,999,999,999,999). We foresee no issues with this limitation, as Context
+Identifiers should primarily use the single-byte representation for efficiency,
+i.e., they should rarely exceed 63.<a href="#section-5-2" class="pilcrow">¶</a></p>
 <div id="ecn-zero-byte-extension">
 <section id="section-5.1">
         <h3 id="name-ecn-zero-byte-extension-2">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-ecn-zero-byte-extension-2" class="section-name selfRef">ECN-zero-byte Extension</a>
         </h3>
-<p id="section-5.1-1">To use the ECN-zero-byte extension three context IDs need
-to be signaled in relation to a payload-identifying context ID.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1-2">Each Actual configuration of an ECN signalled using a four tuple with the following format:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
-<span id="name-ecn-context-assignment-form"></span><div id="ECN-CAP-CID-Format">
+<p id="section-5.1-1">To use the ECN-zero-byte extension three Context IDs need to be configured
+relative to the Context ID that identifies the actual HTTP Datagram payload.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">A configuration of ECN signaling is represented by a four-tuple with the
+following format:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<span id="name-ecn-context-assignment-form"></span><div id="ECN-CAP-CONTEXT-Format">
 <figure id="figure-3">
           <div class="alignLeft art-ascii-art art-text artwork" id="section-5.1-3.1">
 <pre>
@@ -1526,24 +1514,24 @@ start of the HTTP Datagram payload.<a href="#section-5.1-4.8.1" class="pilcrow">
           <h4 id="name-http-structured-field">
 <a href="#section-5.1.1" class="section-number selfRef">5.1.1. </a><a href="#name-http-structured-field" class="section-name selfRef">HTTP Structured field</a>
           </h4>
-<p id="section-5.1.1-1">ECN-Context-ID is an Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its value
-is a list consisting of zero or more inner lists, where an inner list
-contains four integer items. The integer items MUST be non-negative as
-they are context IDs as defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The four context
-IDs are the four defined in <a href="#ECN-CAP-CID-Format" class="auto internal xref">Figure 3</a> in that order.<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-2">When the header is included in a Extended Connect Request, it indicates,
-first of all, support for this ECN extension. Secondly, is may define
-one or more 4-item inner lists of context IDs for the requestor-to-responder direction.
-If no context ID 4-item inner lists are included then
-this header only indicate support for the extension and the context IDs MAY be
-signaled using capsules.<a href="#section-5.1.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-3">The responder MAY include the header in a response if the received request
-included the ECN-Context-ID header. If included in a response it defines
-the context IDs used in the responder-to-requestor direction.<a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-4">The following example indicates support of the ECN-zero-byte extension
-and defines two sets of context IDs, ID=5,6,7 (ECT(1), ECT(0),CE)
-combined with context ID 4, and context ID=1,2,3 combined with
-the default context ID 0 as defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e. a plain UDP Payload.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-1">ECN-Context-ID is a Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its value is a List
+consisting of zero or more Inner Lists, where the Inner List contains four
+Integer Items. The Integer Items MUST be non-negative, as they are context
+identifiers defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The four Context IDs are those defined in
+<a href="#ECN-CAP-CONTEXT-Format" class="auto internal xref">Figure 3</a>, in that order.<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-2">When the header is included in an Extended Connect request, it indicates, first
+of all, support for this ECN extension. Secondly, it may define one or more
+4-item inner lists of Context IDs for the requestor-to-responder direction.
+If no 4-item inner lists of Context IDs are included, then this header only
+indicates support for the extension, and the Context IDs MAY be signaled using
+capsules.<a href="#section-5.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-3">When the request includes the ECN-Context-ID header, the responder MAY include
+this header in the response. If included, it defines the Context ID used in the
+responder-to-requestor direction.<a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-4">The following example indicates support for ECN-zero-byte-extension and
+defines two sets of Context IDs: ID=5, 6, 7 (ECT(1), ECT(0), CE) combined with
+Context ID 4; and ID=1, 2, 3 combined with the default ID=0 as defined in
+<span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
 <span id="name-example-of-ecn-context-id-h"></span><div id="ECN-Context-ID-example">
 <figure id="figure-4">
             <div class="alignLeft art-ascii-art art-text artwork" id="section-5.1.1-5.1">
@@ -1562,7 +1550,7 @@ ECN-Context-ID: (5,6,7,4), (1,2,3,0)
           <h4 id="name-ecn-context-id-assignment-c">
 <a href="#section-5.1.2" class="section-number selfRef">5.1.2. </a><a href="#name-ecn-context-id-assignment-c" class="section-name selfRef">ECN Context ID Assignment Capsule</a>
           </h4>
-<p id="section-5.1.2-1">The DSCP_ECN_CONTEXT_ASSIGN capsule is used to assign conext ID values for the
+<p id="section-5.1.2-1">The ECN_CONTEXT_ASSIGN capsule is used to assign Context ID values to the
 ECN-zero-byte extension.<a href="#section-5.1.2-1" class="pilcrow">¶</a></p>
 <span id="name-ecn_context_assign-capsule-"></span><div id="ECN-CAP-Format">
 <figure id="figure-5">
@@ -1571,7 +1559,7 @@ ECN-zero-byte extension.<a href="#section-5.1.2-1" class="pilcrow">¶</a></p>
 ECN_CONTEXT_ASSIGN Capsule {
   Type (i) = TBA_2
   Length (i),
-  ECN_CONTEXT ASSIGNMENT (..) ...,
+  ECN_CONTEXT_ASSIGNMENT (..) ...,
 }
 </pre>
 </div>
@@ -1579,10 +1567,10 @@ ECN_CONTEXT_ASSIGN Capsule {
 <a href="#name-ecn_context_assign-capsule-" class="selfRef">ECN_CONTEXT_ASSIGN Capsule Format</a>
             </figcaption></figure>
 </div>
-<p id="section-5.1.2-3">Type and Length are as defined by the HTTP Capsule specification
-<span><a href="https://rfc-editor.org/rfc/rfc9297#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC9297" class="cite xref">RFC9297</a>]</span>. The capsule value is the ECN_CONEXT_ASSIGNMENT
-defined above (see <a href="#ECN-CAP-CID-Format" class="auto internal xref">Figure 3</a>). Thus, the capsule value consists
-of zero or more Context Assignment 4-item lists.<a href="#section-5.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.1.2-3">Type and Length as defined by Section 3.2 of the HTTP Capsule specification
+<span>[<a href="#RFC9297" class="cite xref">RFC9297</a>]</span>. The capsule value is the ECN_CONTEXT_ASSIGNMENT defined above in
+<a href="#ECN-CAP-CONTEXT-Format" class="auto internal xref">Figure 3</a>. Thus, the capsule value consists of zero or more
+ECN_CONTEXT_ASSIGNMENT four-tuples.<a href="#section-5.1.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1592,33 +1580,32 @@ of zero or more Context Assignment 4-item lists.<a href="#section-5.1.2-3" class
         <h3 id="name-ecn-dscp-extension">
 <a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-ecn-dscp-extension" class="section-name selfRef">ECN/DSCP extension</a>
         </h3>
-<p id="section-5.2-1">This defines the negotiation of the ECN/DSCP extension defined in <a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>. It defined both an HTTP
-header field (DSCP-ECN-CONTEXT) that can be included in the
-Extended Connect request as well as an capsule.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-1">This section defines the negotiation of the ECN/DSCP extension defined in
+<a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>. It defines both an HTTP header field (DSCP-ECN-Context-ID)
+that can be included in the Extended Connect request, and a capsule.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <div id="http-structured-header">
 <section id="section-5.2.1">
           <h4 id="name-http-structured-header">
 <a href="#section-5.2.1" class="section-number selfRef">5.2.1. </a><a href="#name-http-structured-header" class="section-name selfRef">HTTP Structured Header</a>
           </h4>
-<p id="section-5.2.1-1">DSCP-ECN-Context-ID is an Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its value
-is a list consisting of zero or more inner lists, where an inner list
-contains two integer items. The integer items MUST be non-negative as
-they are context IDs as defined by <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The first
-integer item is the context ID being defined, the second context ID
-is the payload-identifying context ID for the payload following the ECN byte.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-2">When the header is included in a Extended Connect Request it indicate,
-first of all, support for the ECN/DSCP extension. Secondly, is defines
-one or more context IDs that is defined for requestor to responder
-direction. If no context ID pairs are included then this header only
-indicate support for the extension and it may be configured using
-capsules.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-3">The responder MAY include the header in a response if the request include
-the DSCP-ECN-Context-ID header. If included in a response it
-defines thecContext IDs used in the responder-to-requestor direction.<a href="#section-5.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-1">DSCP-ECN-Context-ID is a Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its value is a
+List of zero or more Inner Lists, where each Inner List contains two Integer
+Items. The Integer Items MUST be non-negative, as they are context identifiers
+defined by <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The first Integer Item is the Context ID being defined,
+and the second Integer Item is the Context ID for the payload following the ECN
+byte.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-2">When the header is included in an Extended Connect request, it indicates, first
+of all, support for the ECN/DSCP extension. Secondly, it may define one or more
+context ID pairs for the requestor-to-responder direction. If no context ID
+pairs are included, then this header only indicates support for the extension,
+and it may be configured using capsules.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-3">When the request includes the DSCP-ECN-Context-ID header, the responder MAY
+include this header in the response. If included, it defines the Context ID
+used in the responder-to-requestor direction<a href="#section-5.2.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.2.1-4">The following example indicates supoprt of the ECN/DSCP extension and defines
-three context IDs, context ID=1 is combined with 4, ID=2 with context ID 5
-and ID=3 with the default ID=0 as defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e. a plain
-UDP payload.<a href="#section-5.2.1-4" class="pilcrow">¶</a></p>
+three Context IDs: Context ID 1 combined with Context ID 4, Context ID 2
+combined with Context ID 5, and Context ID 3 combined with the default Context
+ID 0 as defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.2.1-4" class="pilcrow">¶</a></p>
 <span id="name-example-of-ecn-context-id-he"></span><div id="DSCP-ECN-Context-ID-example">
 <figure id="figure-6">
             <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2.1-5.1">
@@ -1655,7 +1642,7 @@ DSCP_ECN_CONTEXT_ASSIGN Capsule {
             </figcaption></figure>
 </div>
 <p id="section-5.2.2-3">Type and Length as defined by the HTTP Capsule specification in <span><a href="https://rfc-editor.org/rfc/rfc9297#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC9297" class="cite xref">RFC9297</a>]</span>. The capsule value is defined below.<a href="#section-5.2.2-3" class="pilcrow">¶</a></p>
-<span id="name-context-assignment-format"></span><div id="DSCP-ECN-CAP-CID-Format">
+<span id="name-context-assignment-format"></span><div id="DSCP-ECN-CAP-CONTEXT-Format">
 <figure id="figure-8">
             <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2.2-4.1">
 <pre>
@@ -1701,18 +1688,17 @@ which may be empty if the peer does not intend to provide any context IDs.<a hre
         <h3 id="name-tunnel-endpoint-marking">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-tunnel-endpoint-marking" class="section-name selfRef">Tunnel Endpoint Marking</a>
         </h3>
-<p id="section-6.1-1">When a tunnel endpoint of a Connect-UDP connection receives an IP/UDP packet
-and the ECN/DSCP extension is enabled, it copies the the six DSCP bits and the two ECN field bits from the IP
-header to the DSCP and ECN fields in the HTTP datagram
-payload using the respective Context ID. If the ECN-zero-byte
-extension is used, the two ECN bits in the incoming IP/UDP packet are used to select
-which context ID value should be used.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.1-2">For the ECN/DSCP extension a tunnel egress endpoint copies the DSCP
-and ECN extension field value into the IP/UDP packet it creates for
-this UDP Proxying payload. For the ECN-zero-byte extension, the conext ID value is
-used to determine which value to write in the outgoing IP/UDP packets
-ECN field.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
-<p id="section-6.1-3">An Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
+<p id="section-6.1-1">The Tunnel Endpoint, when receiving an IP/UDP packet belonging to a Connect-UDP
+request with the ECN/DSCP extension enabled, copies the six DSCP bits and the
+two ECN bits from the IP header into the DSCP and ECN fields, respectively, in
+the HTTP Datagram payload using the relevant Context ID. When using the ECN-only
+extension, the two ECN bits in the incoming IP/UDP packet are used to select the
+appropriate Context ID.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">For the ECN/DSCP extension, the Tunnel Endpoint on egress copies the DSCP and
+ECN extension field values into the IP/UDP packet it creates for this UDP
+Proxying payload. For the ECN extension, the Context ID value is used to
+determine which value to write in the outgoing IP/UDP packet’s ECN field.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.1-3">A Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
 enable the ECN extension.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1721,19 +1707,17 @@ enable the ECN extension.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
         <h3 id="name-dscp-remarking-consideratio">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-dscp-remarking-consideratio" class="section-name selfRef">DSCP Remarking Considerations</a>
         </h3>
-<p id="section-6.2-1">The tunnel may interconnect two different adminstrative domains
-that use DSCP values differently. Thus, the endpoints likely
-need to perform remarking of the DSCP field values, similar as an
-inter domain router. Depending on use cases and deployment,
-an HTTP client can be in different network domains with
-different DSCP usages. An HTTP server that
-connects the HTTP client to different network domains may
-also need to support multiple external domains.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">These complications in handling DSCP makes it impossible
-to provide standarized remarking instructions. Instead the
-deployment will have to define if remarking is handled by the HTTP
-server, the HTTP client, or both considering the tunnel a specific
-network domain in itself.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-1">The tunnel may interconnect two different administrative domains that use
+DSCP values differently. Thus, the endpoints likely need to perform remarking
+of DSCP field values, similar to what an inter-domain router would. Depending on
+use cases and deployment, the HTTP client can be in different network domains
+with different DSCP usages. An HTTP server that, based on user identification,
+connects the HTTP client to different network domains behind it may also need
+to support multiple external domains.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">The above complications in handling DSCP make it impossible to provide a
+standardized remarking instruction. Instead, the deployment will have to define
+whether remarking is handled by the HTTP server, the HTTP client, or both,
+considering the tunnel a specific network domain in itself.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tunnel-transport-connection-ecn-interactions-and-congestion-control">
@@ -1741,34 +1725,33 @@ network domain in itself.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
         <h3 id="name-tunnel-transport-connection">
 <a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-tunnel-transport-connection" class="section-name selfRef">Tunnel Transport Connection ECN Interactions and Congestion Control</a>
         </h3>
-<p id="section-6.3-1">The primary goal of the ECN extension is to enable ECN usage between
-the proxy and the target and have the end-to-end transport react to
-that ECN. However, there are different potential models for how to
-provide ECN interactions for a tunnel, i.e. between the HTTP client and
-sever. Which one to use depends on how the tunnel is configured and what
-other support is implemented for the Connect-UDP protocol.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<p id="section-6.3-2">For HTTP tunnels (that are not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using data
-streams, or HTTP/3 with datagrams with congestion
-control), the each tunnel is one
-congestion-controlled transport connections. In this case, ECN needs to be
-enabled for each underlying transport connection
-independently. That means it is not possible to have a
-one-to-one marking between the lower layer ECN marking and the
-tunneled HTTP datagrams to avoid reacting twice, on the tunnel
-transport and in the end-to-end connection. Instead
-each HTTP hop needs to run an AQM to set ECN CE mark or drop the HTTP datagram.
-In other words, each HTTP transport connection is treated as one IP link on the
-end-to-end chain.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
-<p id="section-6.3-3">For tunnels using HTTP/3 datagrams and where the QUIC connection
-disabled congestion control,
-as discsussed in Section 6 of <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, the ECN marking on the
-tunneled packets can be propogated between the IP packet of the
-transport connection and the end-to-end packet. This represents a
-specific implementation of IP-in-IP tunnels with tightly coupled shim
-Headers as discussed in <span>[<a href="#RFC9601" class="cite xref">RFC9601</a>]</span>. This is implemented as
-Feed-Forward-and-Up as discussed in <span>[<a href="#RFC9599" class="cite xref">RFC9599</a>]</span>, and MUST use the
-normal mode on tunnel ingress, and follow the specified default
-behavior on egress as defined by <span>[<a href="#RFC6040" class="cite xref">RFC6040</a>]</span>.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
+<p id="section-6.3-1">The primary goal of the ECN extension is to enable ECN usage between the proxy
+and the target and to have the end-to-end transport react to that ECN. However,
+different potential models exist for providing ECN interactions for the tunnel,
+i.e., between the HTTP client and server. The choice depends on how the tunnel
+is configured and what additional support has been implemented for the
+Connect-UDP protocol.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">For HTTP tunnels (not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using data streams, or
+HTTP/3 with datagrams but with congestion control enabled) the tunnel will
+consist of one or possibly several chained congestion-controlled transport
+connections. In this case, ECN may be enabled independently on each underlying
+transport connection. However, in this scenario, it is not possible to have a
+one-to-one correspondence between lower-layer ECN markings and tunneled HTTP
+datagrams, nor to avoid reacting at both the tunnel-transport layer and the
+end-to-end layer. Instead, the only practical choice is to have each HTTP-layer
+hop run an ECN-marking AQM governed by its transport connection, which marks
+the ECN field in the HTTP datagram or drops the datagram when a queue builds.
+In other words, each HTTP transport connection is treated as a single IP link
+in the end-to-end chain.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">For tunnels using HTTP/3 with datagrams, where the QUIC connection disables
+congestion control on packets containing HTTP datagrams as discussed in Section
+6 of <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, the ECN marking on tunneled packets can be propagated between
+the IP packet of the transport connection and the end-to-end packet. This
+represents a specific implementation of IP-in-IP tunnels with tightly coupled
+shim headers as discussed in <span>[<a href="#RFC9601" class="cite xref">RFC9601</a>]</span>. It is implemented as
+Feed-Forward-and-Up as discussed in <span>[<a href="#RFC9599" class="cite xref">RFC9599</a>]</span>, and MUST use the normal mode on
+tunnel ingress and follow the specified default behavior on egress as defined in
+<span>[<a href="#RFC6040" class="cite xref">RFC6040</a>]</span>.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tunnel-transport-connection-dscp-interactions">
@@ -1776,43 +1759,42 @@ behavior on egress as defined by <span>[<a href="#RFC6040" class="cite xref">RFC
         <h3 id="name-tunnel-transport-connection-">
 <a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-tunnel-transport-connection-" class="section-name selfRef">Tunnel Transport Connection DSCP Interactions</a>
         </h3>
-<p id="section-6.4-1">For HTTP tunnels not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using data
-streams, or HTTP/3 with datagrams but not disabling congestion
-control, the tunnel will consist of one or possibly several chained
-congestion controlled transport connections. These transport
-connections will only be able to use a single DSCP to avoid
-inconsistent network treatment that might confuse the congestion
-controller and retransmission mechanism. Thus, even if the tunneled
-packets are using different DSCP values, the transport connection will have
-to use a single DSCP; unless the
-Multipath extension for QUIC <span>[<a href="#I-D.ietf-quic-multipath" class="cite xref">I-D.ietf-quic-multipath</a>]</span> is used,
-where each path can have a different DSCP values. In this later case,
-packets with different DSCP values could be mapped to different paths
-with the approparite network treatment as indicated by the DSCP value.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
-<p id="section-6.4-2">For tunnels using HTTP/3 datagram and where the QUIC connection diabled congestion control,
-as discsussed in <span><a href="https://rfc-editor.org/rfc/rfc9298#section-6" class="relref">Section 6</a> of [<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, the QUIC packets could be
-marked using the most suitable DSCP value based on the encapsualted
-packet.  In cases where the tunnel connection sents into a different
-network domains than the one the tunneled packet was received on, a
-suitable remapping needs to occur to the domain the tunnel packet will
-be sent to. The HTTP tunnel MUST not coalesce different tunneled
-payloads which are not mapped to the same DSCP value in the same QUIC packet.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
+<p id="section-6.4-1">For HTTP tunnels not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using data streams, or
+HTTP/3 with datagrams but without disabling congestion control, the tunnel will
+consist of one or possibly several chained congestion-controlled transport
+connections. These transport connections can use only a single DSCP code point
+to avoid inconsistent network treatment that might confuse the congestion
+controller and retransmission mechanism. Thus, even if the tunneled packets use
+different DSCP values, the transport connection must settle on a single,
+suitable DSCP value. However, if the QUIC multipath extension
+<span>[<a href="#I-D.ietf-quic-multipath" class="cite xref">I-D.ietf-quic-multipath</a>]</span> is used, each path can have a different DSCP value.
+In this latter case, packets with different DSCP values can be mapped to
+different paths with the appropriate network treatment as indicated by their
+DSCP values.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+<p id="section-6.4-2">For tunnels using HTTP/3 with datagrams and where the QUIC connection disables
+congestion control on packets containing HTTP datagrams, as discussed in
+Section 6 of <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, the QUIC packets can be marked using the most
+suitable DSCP value based on the encapsulated packet. In cases where the tunnel
+connection is sent into a different network domain than the one on which the
+tunneled packet was received, a suitable remapping must occur for the domain to
+which the tunnel packet will be sent. The HTTP tunnel MUST not coalesce
+different tunneled payloads that are not mapped to the same DSCP in a single
+QUIC packet.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="usage-with-the-quic-aware-forwarding-extension">
+<div id="quic-aware-forwarding">
 <section id="section-6.5">
-        <h3 id="name-usage-with-the-quic-aware-f">
-<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-usage-with-the-quic-aware-f" class="section-name selfRef">Usage with the QUIC Aware Forwarding extension</a>
+        <h3 id="name-quic-aware-forwarding">
+<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-quic-aware-forwarding" class="section-name selfRef">QUIC Aware Forwarding</a>
         </h3>
-<p id="section-6.5-1">A HTTP endpoint that supports this extension and QUIC Aware Forwarding
-<span>[<a href="#I-D.ietf-masque-quic-proxy" class="cite xref">I-D.ietf-masque-quic-proxy</a>]</span> MUST preserve ECN markings on forwarded
-packets in both directions, to ensure ECN functions end-to-end. Using
-this extension in combination with the QUIC Aware forwarding instead
-of only QUIC Aware forwarding also ensures that one does not get ECN black
-holes on some packets, like long header packets or for packets sent at
-any point when the QUIC Aware forwarding is not yet established for
-short header packets. Thus supporting both ensures a consistent ECN
-experience.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
+<p id="section-6.5-1">An HTTP endpoint that supports this extension and QUIC Aware Forwarding
+<span>[<a href="#I-D.ietf-masque-quic-proxy" class="cite xref">I-D.ietf-masque-quic-proxy</a>]</span> MUST preserve ECN markings on forwarded packets
+in both directions to ensure end-to-end ECN functionality. Using this extension
+in combination with QUIC Aware Forwarding, rather than relying solely on the
+latter, also ensures that ECN black holes do not occur, for example, on
+long-header packets or packets sent before the QUIC Aware Forwarding path is
+established for short-header packets. Thus, supporting both provides a
+consistent ECN experience.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
