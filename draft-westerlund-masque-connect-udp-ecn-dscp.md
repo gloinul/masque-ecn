@@ -62,8 +62,8 @@ HTTP's Extended Connect's Connect-UDP protocol enables a client to
 proxy a UDP flow from the HTTP server towards a specified target IP
 address and UDP port. Both QUIC and RTP are transport protocols that
 uses UDP and have support Explicit Congestion Notification (ECN) by providing the necessary
-feedback. Thus, it is benefitial to enable an end-to-end QUIC or
-RTP transport protocol connections/sessions to use ECN. This
+feedback. Thus, it is benefitial to enable an end-to-end QUIC connections or
+Real-time transport protocol (RTP) sessions to use ECN. This
 document specifies how ECN and DSCP can be supported through an
 extension to the Connect-UDP protocol for HTTP.
 
@@ -72,7 +72,7 @@ extension to the Connect-UDP protocol for HTTP.
 
 # Introduction
 
-Connect-UDP as currently defined limits the ECN {{RFC3168}} exchange between the
+Connect-UDP as currently defined limits the Explicit Congestion Notification (ECN) {{RFC3168}} exchange between the
 HTTP server and the target. There is no support for carrying the ECN
 bits between the HTTP Connect-UDP client and the HTTP server proxying
 the UDP flow. Thus, it is not possible to establish the end-to-end ECN
@@ -130,21 +130,21 @@ additioanl Context IDs (A, B, and C) that are used to indicate the ECN
 values that are not Not-ECT, i.e. ECT(1), ECT(0), CE {{RFC3168}}. This
 idea is shown in {{ECN-Encoding-Table}}.
 
-| conext ID Value | ECN bit | ECN Value  | payload ID 
+| Context ID Value | ECN bit | ECN Value  | Payload ID
 | 0 | 0b00 | Not-ECT | 0
 | A | 0b01 | ECT(1) | 0
 | B | 0b10 | ECT(0) | 0
 | C | 0b11 | CE | 0
 {: #ECN-Encoding-Table title="ECN Encoding Table" cols="r l l l"}
 
-No new contest ID value is defined to represent Not-ECT, as using a Context
+No new context ID value is defined to represent Not-ECT, as using a Context
 value without this extension by default would be not-ECT.
 Additionally context IDs are defined to represent the combination of an ECN
 value other than Not-ECT and the actual payload-identifying context
 ID. If the application uses more context ID values than just zero,
 additional context ID values need to be defined.
 
-This extension results in three times the number of conext IDs within one
+This extension results in four times the number of conext IDs within one
 Connect-UDP stream. We expect that is acceptable in most
 cases as a total of 64 context IDs can be encoded as a single byte, thus
 resulting in no packet expansion. However for applications that have
@@ -259,7 +259,7 @@ When the header is included in a Extended Connect Request, it indicates,
 first of all, support for this ECN extension. Secondly, is may define
 one or more 4-item inner lists of context IDs for the requestor-to-responder direction.
 If no context ID 4-item inner lists are included then
-this header only indicate support for the extension and the context IDs may be
+this header only indicate support for the extension and the context IDs MAY be
 signaled using capsules.
 
 The responder MAY include the header in a response if the received request
@@ -424,8 +424,8 @@ provide ECN interactions for a tunnel, i.e. between the HTTP client and
 sever. Which one to use depends on how the tunnel is configured and what
 other support is implemented for the Connect-UDP protocol.
 
-For HTTP tunnels (that not not using HTTP/3 {{RFC9114}}, HTTP/3 using data
-streams, or HTTP/3 with datagrams without congestion
+For HTTP tunnels (that are not using HTTP/3 {{RFC9114}}, HTTP/3 using data
+streams, or HTTP/3 with datagrams with congestion
 control), the each tunnel is one
 congestion-controlled transport connections. In this case, ECN needs to be
 enabled for each underlying transport connection
@@ -433,7 +433,7 @@ independently. That means it is not possible to have a
 one-to-one marking between the lower layer ECN marking and the
 tunneled HTTP datagrams to avoid reacting twice, on the tunnel
 transport and in the end-to-end connection. Instead
-each HTTP hop needs to run an AQM to set ECN marks or drops the HTTP datagram.
+each HTTP hop needs to run an AQM to set ECN CE mark or drop the HTTP datagram.
 In other words, each HTTP transport connection is treated as one IP link on the
 end-to-end chain.
 
