@@ -464,7 +464,7 @@ An HTTP endpoint that supports this extension and QUIC Aware Forwarding
 {{I-D.ietf-masque-quic-proxy}} MUST preserve ECN markings on forwarded packets
 in both directions to ensure end-to-end ECN functionality. Using this extension
 in combination with QUIC Aware Forwarding, rather than relying solely on the
-latter, also ensures that ECN black holes do not occur—for example, on
+latter, also ensures that ECN black holes do not occur, for example, on
 long-header packets or packets sent before the QUIC Aware Forwarding path is
 established for short-header packets. Thus, supporting both provides a
 consistent ECN experience.
