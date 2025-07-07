@@ -35,7 +35,6 @@ author:
    email: magnus.westerlund@ericsson.com
 
 informative:
-   RFC2474:
    RFC8311:
    RFC9484:
    I-D.schinazi-masque-connect-udp-ecn:
@@ -43,6 +42,7 @@ informative:
 
 normative:
    I-D.ietf-masque-quic-proxy:
+   RFC2474:
    RFC2475:
    RFC3168:
    RFC6040:
@@ -149,7 +149,7 @@ This is because of transmission errors or erroneous remarking in the network,
 where the other ECT codepoint, as well as Not-ECT, may be observed.
 
 Negotiation of the conetxt ID values is defined using both
-HTTP headers and capsulses in {{sec-DSCP-ECN}}.
+HTTP headers and capsulses in {{sec-neg-ECN-Zero}}.
 
 
 # DSCP/ECN Extension {#sec-DSCP-ECN}
@@ -175,8 +175,8 @@ ECN/DSCP UDP Proxying Payload {
 ~~~
 {: #UDP-Proxying-Payload title="ECN/DSCP UDP Proxying Payload"}
 
-DSCP: six bits currently reserved, SHALL be set to zero (0) on
-    transmission, and ignored on reception.
+DSCP: A six bit field carrying the Differentiated Service Code Point
+    as defined by {{RFC2474}} associated with this UDP Proxying Payload.
 
 ECN: A two bit field carrying the IP ECN bits as defined by Section 5
     of {{RFC3168}} to be set or as received on the IP/UDP packet
@@ -204,7 +204,7 @@ Identifiers should primarily use the single-byte representation for efficiency,
 i.e., they should rarely exceed 63.
 
 
-## ECN-zero-byte Extension
+## ECN-zero-byte Extension {#sec-neg-ECN-Zero}
 
 To use the ECN-zero-byte extension three Context IDs need to be configured
 relative to the Context ID that identifies the actual HTTP Datagram payload.
@@ -295,12 +295,12 @@ that can be included in the Extended Connect request, and a capsule.
 
 ### HTTP Structured Header
 
-DSCP-ECN-Context-ID is a Structured Header Field {{RFC9651}}. Its value is a
-List of zero or more Inner Lists, where each Inner List contains two Integer
-Items. The Integer Items MUST be non-negative, as they are context identifiers
-defined by {{RFC9298}}. The first Integer Item is the Context ID being defined,
-and the second Integer Item is the Context ID for the payload following the ECN
-byte.
+DSCP-ECN-Context-ID is a Structured Header Field {{RFC9651}}. Its
+value is a List of zero or more Inner Lists, where each Inner List
+contains two Integer Items. The Integer Items MUST be non-negative, as
+they are context identifiers defined by {{RFC9298}}. The first Integer
+Item is the Context ID being defined, and the second Integer Item is
+the Context ID for the payload following the ECN/DSCP byte.
 
 When the header is included in an Extended Connect request, it indicates, first
 of all, support for the ECN/DSCP extension. Secondly, it may define one or more
@@ -318,7 +318,7 @@ combined with Context ID 5, and Context ID 3 combined with the default Context
 ID 0 as defined in {{RFC9298}}, i.e., a plain UDP payload.
 
 ~~~ ascii-art
-DSCP-ECN-Conext-ID: (1,4), (2,5), (3,0)
+DSCP-ECN-Conext-ID: (4,1), (5,2), (3,0)
 ~~~
 {: #DSCP-ECN-Context-ID-example title="Example of ECN-Context-ID header"}
 
@@ -454,7 +454,7 @@ Section 6 of {{RFC9298}}, the QUIC packets can be marked using the most
 suitable DSCP value based on the encapsulated packet. In cases where the tunnel
 connection is sent into a different network domain than the one on which the
 tunneled packet was received, a suitable remapping must occur for the domain to
-which the tunnel packet will be sent. The HTTP tunnel MUST not coalesce
+which the tunnel packet will be sent. The HTTP tunnel MUST NOT coalesce
 different tunneled payloads that are not mapped to the same DSCP in a single
 QUIC packet.
 
@@ -469,11 +469,6 @@ long-header packets or packets sent before the QUIC Aware Forwarding path is
 established for short-header packets. Thus, supporting both provides a
 consistent ECN experience.
 
-# Open Issues
-
-- Is it the right mechanism to use an HTTP header with no
-  configurations to indicate the capability to support
-  later configuration using capsules?
 
 # IANA Considerations
 
