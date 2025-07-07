@@ -95,7 +95,7 @@ a full IP header between the HTTP client and server, resulting in significantly
 more overhead than this extension, which requires zero or one byte to carry
 both the DSCP and ECN bits.
 
-To define a solution that can be combined with other extensions, and thus othe
+To define a solution that can be combined with other extensions, and thus other
 contexts, without redefining each combination, the extensions defined in this
 document indicate not only the ECN and DSCP values but also the next Context ID.
 The ECN-zero-bytes extension defines three additional Context ID values that are
