@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-07-06T01:53:47.150923+00:00",
+  "timestamp": "2025-07-08T01:46:32.687578+00:00",
   "repo": "gloinul/masque-ecn",
   "labels": [
     {
@@ -49,33 +49,136 @@
       "color": "ffffff"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "number": 3,
+      "id": "I_kwDOOZ9yd86_S3vA",
+      "title": "Indication of capsule support",
+      "url": "https://github.com/gloinul/masque-ecn/issues/3",
+      "state": "OPEN",
+      "author": "gloinul",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Is it the right mechanism to use an HTTP header with no\n  configurations to indicate the capability to support\n  later configuration using capsules?\n",
+      "createdAt": "2025-07-07T15:11:58Z",
+      "updatedAt": "2025-07-07T15:11:58Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
   "pulls": [
     {
       "number": 1,
       "id": "PR_kwDOOZ9yd86dfOI2",
       "title": "Full pass",
       "url": "https://github.com/gloinul/masque-ecn/pull/1",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Sorry for the many changes including renaming the extension and CID to context ID. Hope that works for you anyway.",
       "createdAt": "2025-07-04T19:28:50Z",
-      "updatedAt": "2025-07-04T19:39:56Z",
+      "updatedAt": "2025-07-07T08:28:48Z",
       "baseRepository": "gloinul/masque-ecn",
       "baseRefName": "main",
       "baseRefOid": "b4e3982f2ab64e852eef74149ee025bf28749d66",
       "headRepository": "gloinul/masque-ecn",
       "headRefName": "mirjak-patch-1",
-      "headRefOid": "3d1191e3e40244babaf51a2f02eef1162f34a196",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "f73e479d3969010a220fe3dbfd65f5bed6dd4274",
+      "closedAt": "2025-07-07T08:28:48Z",
+      "mergedAt": "2025-07-07T08:28:48Z",
+      "mergedBy": "gloinul",
+      "mergeCommit": {
+        "oid": "10b0b7c175bd29407c0f5bd6d3ddb88e11ff4869"
+      },
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 2,
+      "id": "PR_kwDOOZ9yd86dw7PN",
+      "title": "Spelling",
+      "url": "https://github.com/gloinul/masque-ecn/pull/2",
+      "state": "MERGED",
+      "author": "ihlar",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Some spell fixes and simplified sentence structures. ",
+      "createdAt": "2025-07-07T13:39:10Z",
+      "updatedAt": "2025-07-07T13:58:44Z",
+      "baseRepository": "gloinul/masque-ecn",
+      "baseRefName": "main",
+      "baseRefOid": "10b0b7c175bd29407c0f5bd6d3ddb88e11ff4869",
+      "headRepository": "gloinul/masque-ecn",
+      "headRefName": "spelling",
+      "headRefOid": "72c4c2405991d3f7ecc9b0d6931cd2111160fe97",
+      "closedAt": "2025-07-07T13:58:44Z",
+      "mergedAt": "2025-07-07T13:58:44Z",
+      "mergedBy": "gloinul",
+      "mergeCommit": {
+        "oid": "e30233e5ebbd1cb074a72c7a0b87e8f7d99fc3ef"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOOZ9yd86ydUYy",
+          "commit": {
+            "abbreviatedOid": "72c4c24"
+          },
+          "author": "gloinul",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-07-07T13:58:38Z",
+          "updatedAt": "2025-07-07T13:58:38Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "PR_kwDOOZ9yd86dx_GA",
+      "title": "Various edits to resolve minor errors.",
+      "url": "https://github.com/gloinul/masque-ecn/pull/4",
+      "state": "MERGED",
+      "author": "gloinul",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-07-07T15:13:33Z",
+      "updatedAt": "2025-07-07T15:43:16Z",
+      "baseRepository": "gloinul/masque-ecn",
+      "baseRefName": "main",
+      "baseRefOid": "e30233e5ebbd1cb074a72c7a0b87e8f7d99fc3ef",
+      "headRepository": "gloinul/masque-ecn",
+      "headRefName": "edits0707",
+      "headRefOid": "974cccb656c562b61f9217a9678477975aab204f",
+      "closedAt": "2025-07-07T15:43:16Z",
+      "mergedAt": "2025-07-07T15:43:16Z",
+      "mergedBy": "gloinul",
+      "mergeCommit": {
+        "oid": "a174b69556e5f8e0bcd9b1b8e3057ded353bab83"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOOZ9yd86yeajh",
+          "commit": {
+            "abbreviatedOid": "974cccb"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-07-07T15:18:20Z",
+          "updatedAt": "2025-07-07T15:18:20Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
