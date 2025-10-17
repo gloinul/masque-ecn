@@ -246,7 +246,7 @@ identifiers defined in {{RFC9298}}. The four Context IDs are those defined in
 
 When the header is included in an Extended Connect request, it indicates, first
 of all, support for this ECN extension. Secondly, it may define a 3-item inner
-list of Context IDs. If no 3-item inner lists of Context IDs are included, then
+list of Context IDs. If no 3-item inner list of Context IDs is included, then
 this header only indicates support for the extension, and the Context IDs MAY be
 signaled using capsules.
 
