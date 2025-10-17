@@ -40,6 +40,15 @@ author:
    org: Smallstep
    email: martenseemann@gmail.com
 
+-
+    fullname: Mirja Kühlewind
+    organization: Ericsson
+    email: mirja.kuehlewind@ericsson.com
+-
+    fullname: Marcus Ihlar
+    organization: Ericsson
+    email: marcus.ihlar@ericsson.com
+
 informative:
    RFC8311:
    RFC9484:
