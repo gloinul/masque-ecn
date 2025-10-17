@@ -264,25 +264,24 @@ identifiers defined in {{RFC9298}}. The four Context IDs are those defined in
 {{ECN-CAP-CONTEXT-Format}}, in that order.
 
 When the header is included in an Extended Connect request, it indicates, first
-of all, support for this ECN extension. Secondly, it may define one or more
-4-item inner lists of Context IDs for the requestor-to-responder direction.
-If no 4-item inner lists of Context IDs are included, then this header only
-indicates support for the extension, and the Context IDs MAY be signaled using
-capsules.
+of all, support for this ECN extension. Secondly, it may define a 3-item inner
+list of Context IDs. If no 3-item inner list of Context IDs is included, then
+this header only indicates support for the extension, and the Context IDs MAY be
+signaled using capsules.
 
-When the request includes the ECN-Context-ID header, the responder MAY include
-this header in the response. If included, it defines the Context ID used in the
-responder-to-requestor direction.
-
-The following example indicates support for ECN-zero-byte-extension and
-defines two sets of Context IDs: ID=5, 6, 7 (ECT(1), ECT(0), CE) combined with
-Context ID 4; and ID=1, 2, 3 combined with the default ID=0 as defined in
-{{RFC9298}}, i.e., a plain UDP payload.
+The following example indicates support for ECN-zero-byte-extension and defines
+the set of Context IDs: ID=6, 8, 4 (ECT(1), ECT(0), CE) combined with the
+default ID=0 as defined in {{RFC9298}}, i.e., a plain UDP payload.
 
 ~~~ ascii-art
-ECN-Context-ID: (5,6,7,4), (1,2,3,0)
+ECN-Context-ID: (6,8,4)
 ~~~
-{: #ECN-Context-ID-example title="Example of ECN-Context-ID header"}
+{: #ECN-Context-ID-example title="Example of ECN-Context-ID header sent by the
+client"}
+
+When sent from the proxy, the "ECN-Context-ID" header field’s value is a Boolean
+Structured Field set to true. The proxy indicates support for this extension by
+sending the ECN-Context-ID header field with a value of ?1.
 
 
 ### ECN Context ID Assignment Capsule
