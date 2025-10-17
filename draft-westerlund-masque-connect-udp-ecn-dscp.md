@@ -34,6 +34,12 @@ author:
    org: Ericsson
    email: magnus.westerlund@ericsson.com
 
+-
+   ins: M. Seemann
+   name: Marten Seemann
+   org: Smallstep
+   email: martenseemann@gmail.com
+
 informative:
    RFC8311:
    RFC9484:
