@@ -6,6 +6,9 @@ MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
 Expires: 20 April 2026                                         Smallstep
+                                                            M. Kühlewind
+                                                                M. Ihlar
+                                                                Ericsson
                                                          17 October 2025
 
 
@@ -709,3 +712,13 @@ Authors' Addresses
    Marten Seemann
    Smallstep
    Email: martenseemann@gmail.com
+
+
+   Mirja Kühlewind
+   Ericsson
+   Email: mirja.kuehlewind@ericsson.com
+
+
+   Marcus Ihlar
+   Ericsson
+   Email: marcus.ihlar@ericsson.com
