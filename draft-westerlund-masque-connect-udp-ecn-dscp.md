@@ -102,6 +102,10 @@ The ECN-zero-bytes extension defines three additional Context ID values that are
 bound to an HTTP Datagram payload identifying the Context ID and indicate whether
 the packet was marked with ECT(0), ECT(1), or CE, respectively.
 
+The extensions are defined such that they allow clients to optimistically start
+sending UDP packets in HTTP Datagrams, i.e. before receiving the response to its
+UDP proxying request, as described in {{Section 5 of RFC9298}}.
+
 An endpoint should not enable both extensions defined in this document, as that
 would lead to confusion if both extensions indicate different ECN values.
 
