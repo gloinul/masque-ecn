@@ -4,8 +4,9 @@
 
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
-Intended status: Standards Track                             7 July 2025
-Expires: 8 January 2026
+Intended status: Standards Track                              M. Seemann
+Expires: 20 April 2026                                         Smallstep
+                                                         17 October 2025
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -54,7 +55,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 January 2026.
+   This Internet-Draft will expire on 20 April 2026.
 
 Copyright Notice
 
@@ -101,7 +102,7 @@ Table of Contents
    9.  References
      9.1.  Normative References
      9.2.  Informative References
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
@@ -598,9 +599,9 @@ Table of Contents
    [I-D.ietf-masque-quic-proxy]
               Pauly, T., Rosenberg, E., and D. Schinazi, "QUIC-Aware
               Proxying Using HTTP", Work in Progress, Internet-Draft,
-              draft-ietf-masque-quic-proxy-05, 3 March 2025,
+              draft-ietf-masque-quic-proxy-07, 8 October 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              quic-proxy-05>.
+              quic-proxy-07>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -672,9 +673,9 @@ Table of Contents
    [I-D.ietf-quic-multipath]
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
               C., and M. Kühlewind, "Multipath Extension for QUIC", Work
-              in Progress, Internet-Draft, draft-ietf-quic-multipath-15,
-              7 July 2025, <https://datatracker.ietf.org/doc/html/draft-
-              ietf-quic-multipath-15>.
+              in Progress, Internet-Draft, draft-ietf-quic-multipath-16,
+              21 August 2025, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-quic-multipath-16>.
 
    [I-D.schinazi-masque-connect-udp-ecn]
               Schinazi, D., "An ECN Extension to CONNECT-UDP", Work in
@@ -693,8 +694,13 @@ Table of Contents
               RFC 9484, DOI 10.17487/RFC9484, October 2023,
               <https://www.rfc-editor.org/rfc/rfc9484>.
 
-Author's Address
+Authors' Addresses
 
    Magnus Westerlund
    Ericsson
    Email: magnus.westerlund@ericsson.com
+
+
+   Marten Seemann
+   Smallstep
+   Email: martenseemann@gmail.com
