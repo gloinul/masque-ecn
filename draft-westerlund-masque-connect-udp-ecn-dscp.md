@@ -428,18 +428,13 @@ i.e., between the HTTP client and server. The choice depends on how the tunnel
 is configured and what additional support has been implemented for the
 Connect-UDP protocol.
 
-For HTTP tunnels (not using HTTP/3 {{RFC9114}}, HTTP/3 using data streams, or
-HTTP/3 with datagrams but with congestion control enabled) the tunnel will
-consist of one or possibly several chained congestion-controlled transport
-connections. In this case, ECN may be enabled independently on each underlying
-transport connection. However, in this scenario, it is not possible to have a
-one-to-one correspondence between lower-layer ECN markings and tunneled HTTP
-datagrams, nor to avoid reacting at both the tunnel-transport layer and the
-end-to-end layer. Instead, the only practical choice is to have each HTTP-layer
-hop run an ECN-marking AQM governed by its transport connection, which marks
-the ECN field in the HTTP datagram or drops the datagram when a queue builds.
-In other words, each HTTP transport connection is treated as a single IP link
-in the end-to-end chain.
+The default deployment would be to use congestion controlled transport protocols
+between the HTTP endpoints or proxies for the tunneled ECN enabled packets. This
+include all HTTP versions before HTTP/3 {{RFC9114}}, as well as HTTP/3 sending
+packets over reliable streams as well as over congestion controlled datagrams.
+In this deployment on the ingress to each congestion controlled transport an
+Active Queue Management (AQM) is recommend that can mark the tunneled packet's
+ECN field (or drop them) in case there is sufficient queue build up.
 
 For tunnels using HTTP/3 with datagrams, where the QUIC connection disables
 congestion control on packets containing HTTP datagrams as discussed in Section
