@@ -156,8 +156,8 @@ Context ID values than just zero, additional Context IDs must be defined.
 
 This extension results in four times as many Context IDs within a single
 Connect-UDP stream. We expect that this is acceptable in most cases, as a total
-of 64 Context IDs can be encoded in a single byte, thus resulting in no packet
-expansion. However, for applications that have more than 16 original Context IDs
+of 31 client initiated Context IDs can be encoded in a single byte, thus resulting in no packet
+expansion. However, for applications that have more than 8 original Context IDs
 (including zero), it is recommended to use the ECN/DSCP extension
 {{sec-DSCP-ECN}}, which only doubles the number of Context IDs but requires an
 additional byte in the payload.
@@ -274,13 +274,13 @@ When the request includes the ECN-Context-ID header, the responder MAY include
 this header in the response. If included, it defines the Context ID used in the
 responder-to-requestor direction.
 
-The following example indicates support for ECN-zero-byte-extension and
-defines two sets of Context IDs: ID=5, 6, 7 (ECT(1), ECT(0), CE) combined with
-Context ID 4; and ID=1, 2, 3 combined with the default ID=0 as defined in
-{{RFC9298}}, i.e., a plain UDP payload.
+The following example indicates support for ECN-zero-byte-extension and defines
+two sets of client initiated Context IDs: ID=10, 12, 14 (ECT(1), ECT(0), CE)
+combined with Context ID 8; and ID=2, 4, 6 combined with the default ID=0 as
+defined in {{RFC9298}}, i.e., a plain UDP payload.
 
 ~~~ ascii-art
-ECN-Context-ID: (5,6,7,4), (1,2,3,0)
+ECN-Context-ID: (10,12,14,8), (2,4,6,0)
 ~~~
 {: #ECN-Context-ID-example title="Example of ECN-Context-ID header"}
 
@@ -332,12 +332,12 @@ include this header in the response. If included, it defines the Context ID
 used in the responder-to-requestor direction
 
 The following example indicates supoprt of the ECN/DSCP extension and defines
-three Context IDs: Context ID 1 combined with Context ID 4, Context ID 2
-combined with Context ID 5, and Context ID 3 combined with the default Context
+three Context IDs: Context ID 10 combined with Context ID 8, Context ID 6
+combined with Context ID 4, and Context ID 2 combined with the default Context
 ID 0 as defined in {{RFC9298}}, i.e., a plain UDP payload.
 
 ~~~ ascii-art
-DSCP-ECN-Conext-ID: (4,1), (5,2), (3,0)
+DSCP-ECN-Conext-ID: (10,8), (6,4), (2,0)
 ~~~
 {: #DSCP-ECN-Context-ID-example title="Example of ECN-Context-ID header"}
 
