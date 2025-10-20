@@ -1400,8 +1400,8 @@ Not-ECT and the payload-identifying Context ID. If an application uses more
 Context ID values than just zero, additional Context IDs must be defined.<a href="#section-3-4" class="pilcrow">¶</a></p>
 <p id="section-3-5">This extension results in four times as many Context IDs within a single
 Connect-UDP stream. We expect that this is acceptable in most cases, as a total
-of 64 Context IDs can be encoded in a single byte, thus resulting in no packet
-expansion. However, for applications that have more than 16 original Context IDs
+of 31 client initiated Context IDs can be encoded in a single byte, thus resulting in no packet
+expansion. However, for applications that have more than 8 original Context IDs
 (including zero), it is recommended to use the ECN/DSCP extension
 <a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>, which only doubles the number of Context IDs but requires an
 additional byte in the payload.<a href="#section-3-5" class="pilcrow">¶</a></p>
@@ -1542,15 +1542,15 @@ capsules.<a href="#section-5.1.1-2" class="pilcrow">¶</a></p>
 <p id="section-5.1.1-3">When the request includes the ECN-Context-ID header, the responder MAY include
 this header in the response. If included, it defines the Context ID used in the
 responder-to-requestor direction.<a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-4">The following example indicates support for ECN-zero-byte-extension and
-defines two sets of Context IDs: ID=5, 6, 7 (ECT(1), ECT(0), CE) combined with
-Context ID 4; and ID=1, 2, 3 combined with the default ID=0 as defined in
-<span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-4">The following example indicates support for ECN-zero-byte-extension and defines
+two sets of client initiated Context IDs: ID=10, 12, 14 (ECT(1), ECT(0), CE)
+combined with Context ID 8; and ID=2, 4, 6 combined with the default ID=0 as
+defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
 <span id="name-example-of-ecn-context-id-h"></span><div id="ECN-Context-ID-example">
 <figure id="figure-4">
             <div class="alignLeft art-ascii-art art-text artwork" id="section-5.1.1-5.1">
 <pre>
-ECN-Context-ID: (5,6,7,4), (1,2,3,0)
+ECN-Context-ID: (10,12,14,8), (2,4,6,0)
 </pre>
 </div>
 <figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
@@ -1617,14 +1617,14 @@ and it may be configured using capsules.<a href="#section-5.2.1-2" class="pilcro
 include this header in the response. If included, it defines the Context ID
 used in the responder-to-requestor direction<a href="#section-5.2.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.2.1-4">The following example indicates supoprt of the ECN/DSCP extension and defines
-three Context IDs: Context ID 1 combined with Context ID 4, Context ID 2
-combined with Context ID 5, and Context ID 3 combined with the default Context
+three Context IDs: Context ID 10 combined with Context ID 8, Context ID 6
+combined with Context ID 4, and Context ID 2 combined with the default Context
 ID 0 as defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.2.1-4" class="pilcrow">¶</a></p>
 <span id="name-example-of-ecn-context-id-he"></span><div id="DSCP-ECN-Context-ID-example">
 <figure id="figure-6">
             <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2.1-5.1">
 <pre>
-DSCP-ECN-Conext-ID: (4,1), (5,2), (3,0)
+DSCP-ECN-Conext-ID: (10,8), (6,4), (2,0)
 </pre>
 </div>
 <figcaption><a href="#figure-6" class="selfRef">Figure 6</a>:
