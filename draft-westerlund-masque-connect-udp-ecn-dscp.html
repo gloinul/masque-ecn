@@ -1297,7 +1297,7 @@ protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 support for carrying the ECN bits between the HTTP Connect-UDP client and the
 HTTP server proxying the UDP flow. Thus, it is not possible to establish the
 end-to-end ECN information flow necessary to support either classic ECN
-<span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> or L4S <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> or L4S <span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span>, <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">Diffserv <span>[<a href="#RFC2475" class="cite xref">RFC2475</a>]</span> enables differential network treatment of packets.
 Connect-UDP, as currently defined, lacks support for carrying the DSCP
 field <span>[<a href="#RFC2474" class="cite xref">RFC2474</a>]</span> through the tunnel.<a href="#section-1-2" class="pilcrow">¶</a></p>
@@ -1975,10 +1975,6 @@ Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xr
         <dd>
 <span class="refAuthor">Nichols, K.</span>, <span class="refAuthor">Blake, S.</span>, <span class="refAuthor">Baker, F.</span>, and <span class="refAuthor">D. Black</span>, <span class="refTitle">"Definition of the Differentiated Services Field (DS Field) in the IPv4 and IPv6 Headers"</span>, <span class="seriesInfo">RFC 2474</span>, <span class="seriesInfo">DOI 10.17487/RFC2474</span>, <time datetime="1998-12" class="refDate">December 1998</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2474">https://www.rfc-editor.org/rfc/rfc2474</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC2475">[RFC2475]</dt>
-        <dd>
-<span class="refAuthor">Blake, S.</span>, <span class="refAuthor">Black, D.</span>, <span class="refAuthor">Carlson, M.</span>, <span class="refAuthor">Davies, E.</span>, <span class="refAuthor">Wang, Z.</span>, and <span class="refAuthor">W. Weiss</span>, <span class="refTitle">"An Architecture for Differentiated Services"</span>, <span class="seriesInfo">RFC 2475</span>, <span class="seriesInfo">DOI 10.17487/RFC2475</span>, <time datetime="1998-12" class="refDate">December 1998</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2475">https://www.rfc-editor.org/rfc/rfc2475</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC3168">[RFC3168]</dt>
         <dd>
 <span class="refAuthor">Ramakrishnan, K.</span>, <span class="refAuthor">Floyd, S.</span>, and <span class="refAuthor">D. Black</span>, <span class="refTitle">"The Addition of Explicit Congestion Notification (ECN) to IP"</span>, <span class="seriesInfo">RFC 3168</span>, <span class="seriesInfo">DOI 10.17487/RFC3168</span>, <time datetime="2001-09" class="refDate">September 2001</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3168">https://www.rfc-editor.org/rfc/rfc3168</a>&gt;</span>. </dd>
@@ -2007,9 +2003,9 @@ Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xr
         <dd>
 <span class="refAuthor">Schinazi, D.</span>, <span class="refTitle">"Proxying UDP in HTTP"</span>, <span class="seriesInfo">RFC 9298</span>, <span class="seriesInfo">DOI 10.17487/RFC9298</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9298">https://www.rfc-editor.org/rfc/rfc9298</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC9330">[RFC9330]</dt>
+<dt id="RFC9331">[RFC9331]</dt>
         <dd>
-<span class="refAuthor">Briscoe, B., Ed.</span>, <span class="refAuthor">De Schepper, K.</span>, <span class="refAuthor">Bagnulo, M.</span>, and <span class="refAuthor">G. White</span>, <span class="refTitle">"Low Latency, Low Loss, and Scalable Throughput (L4S) Internet Service: Architecture"</span>, <span class="seriesInfo">RFC 9330</span>, <span class="seriesInfo">DOI 10.17487/RFC9330</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9330">https://www.rfc-editor.org/rfc/rfc9330</a>&gt;</span>. </dd>
+<span class="refAuthor">De Schepper, K.</span> and <span class="refAuthor">B. Briscoe, Ed.</span>, <span class="refTitle">"The Explicit Congestion Notification (ECN) Protocol for Low Latency, Low Loss, and Scalable Throughput (L4S)"</span>, <span class="seriesInfo">RFC 9331</span>, <span class="seriesInfo">DOI 10.17487/RFC9331</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9331">https://www.rfc-editor.org/rfc/rfc9331</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9599">[RFC9599]</dt>
         <dd>
@@ -2040,9 +2036,17 @@ Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xr
         <dd>
 <span class="refAuthor">Schinazi, D.</span>, <span class="refTitle">"An ECN Extension to CONNECT-UDP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-schinazi-masque-connect-udp-ecn-02</span>, <time datetime="2022-03-28" class="refDate">28 March 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-schinazi-masque-connect-udp-ecn-02">https://datatracker.ietf.org/doc/html/draft-schinazi-masque-connect-udp-ecn-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC2475">[RFC2475]</dt>
+        <dd>
+<span class="refAuthor">Blake, S.</span>, <span class="refAuthor">Black, D.</span>, <span class="refAuthor">Carlson, M.</span>, <span class="refAuthor">Davies, E.</span>, <span class="refAuthor">Wang, Z.</span>, and <span class="refAuthor">W. Weiss</span>, <span class="refTitle">"An Architecture for Differentiated Services"</span>, <span class="seriesInfo">RFC 2475</span>, <span class="seriesInfo">DOI 10.17487/RFC2475</span>, <time datetime="1998-12" class="refDate">December 1998</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2475">https://www.rfc-editor.org/rfc/rfc2475</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8311">[RFC8311]</dt>
         <dd>
 <span class="refAuthor">Black, D.</span>, <span class="refTitle">"Relaxing Restrictions on Explicit Congestion Notification (ECN) Experimentation"</span>, <span class="seriesInfo">RFC 8311</span>, <span class="seriesInfo">DOI 10.17487/RFC8311</span>, <time datetime="2018-01" class="refDate">January 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8311">https://www.rfc-editor.org/rfc/rfc8311</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9330">[RFC9330]</dt>
+        <dd>
+<span class="refAuthor">Briscoe, B., Ed.</span>, <span class="refAuthor">De Schepper, K.</span>, <span class="refAuthor">Bagnulo, M.</span>, and <span class="refAuthor">G. White</span>, <span class="refTitle">"Low Latency, Low Loss, and Scalable Throughput (L4S) Internet Service: Architecture"</span>, <span class="seriesInfo">RFC 9330</span>, <span class="seriesInfo">DOI 10.17487/RFC9330</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9330">https://www.rfc-editor.org/rfc/rfc9330</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9484">[RFC9484]</dt>
       <dd>

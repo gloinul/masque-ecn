@@ -115,7 +115,7 @@ Table of Contents
    HTTP Connect-UDP client and the HTTP server proxying the UDP flow.
    Thus, it is not possible to establish the end-to-end ECN information
    flow necessary to support either classic ECN [RFC3168] or L4S
-   [RFC9484].
+   [RFC9330], [RFC9331].
 
    Diffserv [RFC2475] enables differential network treatment of packets.
    Connect-UDP, as currently defined, lacks support for carrying the
@@ -620,11 +620,6 @@ Table of Contents
               DOI 10.17487/RFC2474, December 1998,
               <https://www.rfc-editor.org/rfc/rfc2474>.
 
-   [RFC2475]  Blake, S., Black, D., Carlson, M., Davies, E., Wang, Z.,
-              and W. Weiss, "An Architecture for Differentiated
-              Services", RFC 2475, DOI 10.17487/RFC2475, December 1998,
-              <https://www.rfc-editor.org/rfc/rfc2475>.
-
    [RFC3168]  Ramakrishnan, K., Floyd, S., and D. Black, "The Addition
               of Explicit Congestion Notification (ECN) to IP",
               RFC 3168, DOI 10.17487/RFC3168, September 2001,
@@ -654,11 +649,11 @@ Table of Contents
               DOI 10.17487/RFC9298, August 2022,
               <https://www.rfc-editor.org/rfc/rfc9298>.
 
-   [RFC9330]  Briscoe, B., Ed., De Schepper, K., Bagnulo, M., and G.
-              White, "Low Latency, Low Loss, and Scalable Throughput
-              (L4S) Internet Service: Architecture", RFC 9330,
-              DOI 10.17487/RFC9330, January 2023,
-              <https://www.rfc-editor.org/rfc/rfc9330>.
+   [RFC9331]  De Schepper, K. and B. Briscoe, Ed., "The Explicit
+              Congestion Notification (ECN) Protocol for Low Latency,
+              Low Loss, and Scalable Throughput (L4S)", RFC 9331,
+              DOI 10.17487/RFC9331, January 2023,
+              <https://www.rfc-editor.org/rfc/rfc9331>.
 
    [RFC9599]  Briscoe, B. and J. Kaippallimalil, "Guidelines for Adding
               Congestion Notification to Protocols that Encapsulate IP",
@@ -691,10 +686,21 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-schinazi-
               masque-connect-udp-ecn-02>.
 
+   [RFC2475]  Blake, S., Black, D., Carlson, M., Davies, E., Wang, Z.,
+              and W. Weiss, "An Architecture for Differentiated
+              Services", RFC 2475, DOI 10.17487/RFC2475, December 1998,
+              <https://www.rfc-editor.org/rfc/rfc2475>.
+
    [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
               Notification (ECN) Experimentation", RFC 8311,
               DOI 10.17487/RFC8311, January 2018,
               <https://www.rfc-editor.org/rfc/rfc8311>.
+
+   [RFC9330]  Briscoe, B., Ed., De Schepper, K., Bagnulo, M., and G.
+              White, "Low Latency, Low Loss, and Scalable Throughput
+              (L4S) Internet Service: Architecture", RFC 9330,
+              DOI 10.17487/RFC9330, January 2023,
+              <https://www.rfc-editor.org/rfc/rfc9330>.
 
    [RFC9484]  Pauly, T., Ed., Schinazi, D., Chernyakhovsky, A.,
               Kühlewind, M., and M. Westerlund, "Proxying IP in HTTP",
