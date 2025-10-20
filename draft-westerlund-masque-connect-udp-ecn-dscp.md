@@ -50,7 +50,9 @@ author:
     email: marcus.ihlar@ericsson.com
 
 informative:
+   RFC2475:
    RFC8311:
+   RFC9330:
    RFC9484:
    I-D.schinazi-masque-connect-udp-ecn:
    I-D.ietf-quic-multipath:
@@ -58,14 +60,13 @@ informative:
 normative:
    I-D.ietf-masque-quic-proxy:
    RFC2474:
-   RFC2475:
    RFC3168:
    RFC6040:
    RFC9000:
    RFC9114:
    RFC9298:
    RFC9297:
-   RFC9330:
+   RFC9331:
    RFC9599:
    RFC9601:
    RFC9651:
@@ -91,7 +92,7 @@ Connect-UDP, as currently defined, limits the Explicit Congestion Notification
 support for carrying the ECN bits between the HTTP Connect-UDP client and the
 HTTP server proxying the UDP flow. Thus, it is not possible to establish the
 end-to-end ECN information flow necessary to support either classic ECN
-{{RFC3168}} or L4S {{RFC9484}}.
+{{RFC3168}} or L4S {{RFC9330}}, {{RFC9331}}.
 
 Diffserv {{RFC2475}} enables differential network treatment of packets.
 Connect-UDP, as currently defined, lacks support for carrying the DSCP
