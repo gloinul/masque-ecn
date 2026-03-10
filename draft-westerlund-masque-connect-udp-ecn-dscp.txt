@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 23 April 2026                                         Smallstep
+Expires: 11 September 2026                                     Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                         20 October 2025
+                                                           10 March 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -58,11 +58,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 April 2026.
+   This Internet-Draft will expire on 11 September 2026.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -605,9 +605,9 @@ Table of Contents
    [I-D.ietf-masque-quic-proxy]
               Pauly, T., Rosenberg, E., and D. Schinazi, "QUIC-Aware
               Proxying Using HTTP", Work in Progress, Internet-Draft,
-              draft-ietf-masque-quic-proxy-07, 8 October 2025,
+              draft-ietf-masque-quic-proxy-08, 2 March 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              quic-proxy-07>.
+              quic-proxy-08>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -675,9 +675,9 @@ Table of Contents
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
               C., and M. Kühlewind, "Managing multiple paths for a QUIC
               connection", Work in Progress, Internet-Draft, draft-ietf-
-              quic-multipath-17, 20 October 2025,
+              quic-multipath-20, 20 February 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
-              multipath-17>.
+              multipath-20>.
 
    [I-D.schinazi-masque-connect-udp-ecn]
               Schinazi, D., "An ECN Extension to CONNECT-UDP", Work in
