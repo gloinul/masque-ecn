@@ -255,7 +255,7 @@ defines Context ID defined by the server, usable in either direction.
 The following example indicates support for this extension and defines
 two sets of client initiated Context IDs: ID= 10, 12, 14, 16 (Not-ECN-Capable, ECT(1), ECT(0), CE)
 combined with DSCP 46 for Expedited Forwarding (EF): 46 ; and ID=0, 4, 6, 8 combined with the default DSCP value of 0.
-Note that the default context ID of 0 is (re-)used to indicate the default ECN value of Not-ECN Capable. 
+Note that the default context ID of 0 is (re-)used to indicate the default ECN value of Not-ECN Capable.
 
 ~~~ ascii-art
 ECN-Context-ID: (46,8,10,12,14), (0,0,2,4,6 )
