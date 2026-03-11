@@ -148,45 +148,6 @@ where the other ECT codepoint, as well as Not-ECT, may be observed.
 Negotiation of the conetxt ID values is defined using both
 HTTP headers and capsulses in {{sec-neg}}.
 
-# DSCP plus ECN Extension {#sec-DSCP-ECN}
-
-The HTTP Datagram Payload format is defined in {{RFC9484}} as depicted below.
-
-~~~ ascii-art
-UDP Proxying HTTP Datagram Payload {
-  Context ID (i),
-  UDP Proxying Payload (..)
-}
-~~~
-{: #dgram-format title="ECN enabled UDP Proxying HTTP Datagram Format"}
-
-For the DSCP plus ECN extension, the DSCP plus ECN UDP Proxying Payload is defined in the following way:
-
-~~~ ascii-art
-ECN/DSCP UDP Proxying Payload {
-  DSCP(6),
-  ECN(2),
-  UDP Proxying Payload (..) # Payload per another Context ID definition
-}
-~~~
-{: #UDP-Proxying-Payload title="DSCP plus ECN UDP Proxying Payload"}
-
-DSCP: A six bit field carrying the Differentiated Service Code Point
-    as defined by {{RFC2474}} associated with this UDP Proxying Payload.
-
-ECN: A two bit field carrying the IP ECN bits as defined by Section 5
-    of {{RFC3168}} to be set or as received on the IP/UDP packet
-    carrying the UDP Datagram payload included.
-
-UDP Proxying Payload: Another UDP Proxying Payload following the ECN
-    carrying byte. This uses another Context ID as negotiated,
-    e.g. Context ID 0.  Thus enabling this byte to be combined with
-    any other payload.
-
-This format used a negotiated context ID that MUST be non-zero. It
-MUST also negotiate the payload-identifying context ID.
-
-
 # Negotiating Extensions Usage {#sec-neg}
 
 This section defines capability negotation and Context ID
@@ -213,7 +174,6 @@ ECN_DSCP_CONTEXT_ASSIGNMENT {
   ECT_1_CONTEXT (i),
   ECT_0_CONTEXT (i),
   CE_CONTEXT (i),
-
 }
 ~~~
 {: #ECN-DSCP-Format title="ECN DSCP CONTEXT ASSIGNMENT Format"}
