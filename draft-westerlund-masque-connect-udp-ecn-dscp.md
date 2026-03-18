@@ -145,12 +145,12 @@ the ECN-enabled application expects that only one ECT value (and CE) is used.
 This is because of transmission errors or erroneous remarking in the network,
 where the other ECT codepoint, as well as Not-ECT, may be observed.
 
-Negotiation of the conetxt ID values is defined using both
-HTTP headers and capsulses in {{sec-neg}}.
+Negotiation of the context ID values is defined using both
+HTTP headers and capsules in {{sec-neg}}.
 
 # Negotiating Extensions Usage {#sec-neg}
 
-This section defines capability negotation and Context ID
+This section defines capability negotiation and Context ID
 configuration for the zero-bytes combined ECN and DSCP extensions.
 
 Note that Context Identifiers are defined as QUIC varints (see Section 16 of
@@ -224,7 +224,7 @@ ECN-Context-ID: (46,8,10,12,14), (0,0,2,4,6 )
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
-The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additonal Context ID values
+The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
 after negotiation and initial assignment in the HTPP header.
 
 ~~~ ascii-art
@@ -362,7 +362,7 @@ consistent ECN experience.
 
 ## HTTP Field Names
 
-IANA is request to register one new permanent Field name in the
+IANA is requested to register one new permanent Field name in the
 Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
 writing residing at:
 https://www.iana.org/assignments/http-fields/http-fields.xhtml).
@@ -384,7 +384,7 @@ Reference:
 
 ## HTTP Capsule Type
 
-IANA is reqeusted ot register two new HTTP Capsule Types in the
+IANA is requested ot register two new HTTP Capsule Types in the
 permanent range (0x00-0x3f).
 
 ### ECN_DSCP_CONTEXT_ASSIGN
