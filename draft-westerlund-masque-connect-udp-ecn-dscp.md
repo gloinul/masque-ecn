@@ -120,7 +120,7 @@ UDP proxying request, as described in {{Section 5 of RFC9298}}.
 
 For a zero-overhead encoding, the ECN and DSCP bits are indicated by using different
 Context IDs. An example use of three additonal Context IDs to only encode the ECN
-bit used together with a DSCP op 0 is shown in {{ECN-Encoding-Table}}.
+bit used together with a DSCP of 0 is shown in {{ECN-Encoding-Table}}.
 
 | Context ID Value | ECN bit | ECN Value  | DSCP Value
 | 0 | 0b00 | Not-ECT | 0
