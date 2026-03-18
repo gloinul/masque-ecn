@@ -435,7 +435,4 @@ Notes:
 : None
 
 
-# Acknowledgments
-
-
 --- back
