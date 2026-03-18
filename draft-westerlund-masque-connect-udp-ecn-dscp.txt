@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 11 September 2026                                     Smallstep
+Expires: 19 September 2026                                     Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                           10 March 2026
+                                                           18 March 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 September 2026.
+   This Internet-Draft will expire on 19 September 2026.
 
 Copyright Notice
 
@@ -675,9 +675,9 @@ Table of Contents
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
               C., and M. Kühlewind, "Managing multiple paths for a QUIC
               connection", Work in Progress, Internet-Draft, draft-ietf-
-              quic-multipath-20, 20 February 2026,
+              quic-multipath-21, 17 March 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
-              multipath-20>.
+              multipath-21>.
 
    [I-D.schinazi-masque-connect-udp-ecn]
               Schinazi, D., "An ECN Extension to CONNECT-UDP", Work in
