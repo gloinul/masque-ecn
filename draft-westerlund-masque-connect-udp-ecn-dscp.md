@@ -369,13 +369,17 @@ https://www.iana.org/assignments/http-fields/http-fields.xhtml).
 
 ### DSCP-ECN-Context-ID
 
-   Field Name: DSCP-ECN-Context-ID
+Field Name:
+: DSCP-ECN-Context-ID
 
-   Status: Permanent
+Status:
+: Permanent
 
-   Structured Type: List
+Structured Type:
+: List
 
-   Reference: [RFC-TO-BE]
+Reference:
+: RFC-TO-BE
 
 
 ## HTTP Capsule Type
