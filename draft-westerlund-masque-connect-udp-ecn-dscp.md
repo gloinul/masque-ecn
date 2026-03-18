@@ -234,7 +234,7 @@ ECN_DSCP_CONTEXT_ASSIGN Capsule {
   ECN_DSCP_CONTEXT_ASSIGNMENT (..) ...,
 }
 ~~~
-{: #CAP-Format title="ECN_DSCP_CONTEXT_ASSIGN Capsule Format"}
+{: #CAP-Format-Assign title="ECN_DSCP_CONTEXT_ASSIGN Capsule Format"}
 
 Type and Length as defined by Section 3.2 of the HTTP Capsule specification
 {{RFC9297}}. The capsule value is the ECN_DSCP_CONTEXT_ASSIGNMENT defined above in
@@ -251,7 +251,7 @@ ECN_DSCP_CONTEXT_ACK Capsule {
   ECN_DSCP_CONTEXT_ASSIGNMENT (..) ...,
 }
 ~~~
-{: #CAP-Format title="ECN_DSCP_CONTEXT_ACK Capsule Format"}
+{: #CAP-Format-Ack title="ECN_DSCP_CONTEXT_ACK Capsule Format"}
 
 An endpoint only send a ECN_DSCP_CONTEXT_ACK capsule if it received a
 ECN_DSCP_CONTEXT_ASSIGN capsule with the same ECN_DSCP_CONTEXT_ASSIGNMENT.
