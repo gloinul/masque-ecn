@@ -1,5 +1,5 @@
 ---
-docname: draft-westerlund-masque-connect-udp-ecn-dscp-latest
+docname: draft-mmmm-masque-zero-bytes-ecn-dscp-latest
 title: Zero-bytes overhead extension for ECN and DSCP support for HTTPS's Connect-UDP
 v: 3
 submissiontype: IETF
