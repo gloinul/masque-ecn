@@ -384,7 +384,7 @@ Reference:
 
 ## HTTP Capsule Type
 
-IANA is reqeusted ot register two new HTTP Capsule Types in the
+IANA is requested ot register two new HTTP Capsule Types in the
 permanent range (0x00-0x3f).
 
 ### ECN_DSCP_CONTEXT_ASSIGN
