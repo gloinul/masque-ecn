@@ -362,7 +362,7 @@ consistent ECN experience.
 
 ## HTTP Field Names
 
-IANA is request to register one new permanent Field name in the
+IANA is requested to register one new permanent Field name in the
 Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
 writing residing at:
 https://www.iana.org/assignments/http-fields/http-fields.xhtml).
