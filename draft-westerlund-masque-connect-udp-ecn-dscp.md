@@ -145,7 +145,7 @@ the ECN-enabled application expects that only one ECT value (and CE) is used.
 This is because of transmission errors or erroneous remarking in the network,
 where the other ECT codepoint, as well as Not-ECT, may be observed.
 
-Negotiation of the conetxt ID values is defined using both
+Negotiation of the context ID values is defined using both
 HTTP headers and capsulses in {{sec-neg}}.
 
 # Negotiating Extensions Usage {#sec-neg}
