@@ -146,7 +146,7 @@ This is because of transmission errors or erroneous remarking in the network,
 where the other ECT codepoint, as well as Not-ECT, may be observed.
 
 Negotiation of the context ID values is defined using both
-HTTP headers and capsulses in {{sec-neg}}.
+HTTP headers and capsules in {{sec-neg}}.
 
 # Negotiating Extensions Usage {#sec-neg}
 
