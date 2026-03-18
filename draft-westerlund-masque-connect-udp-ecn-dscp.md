@@ -224,7 +224,7 @@ ECN-Context-ID: (46,8,10,12,14), (0,0,2,4,6 )
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
-The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additonal Context ID values
+The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
 after negotiation and initial assignment in the HTPP header.
 
 ~~~ ascii-art
