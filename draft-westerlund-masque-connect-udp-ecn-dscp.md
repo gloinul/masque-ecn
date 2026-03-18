@@ -150,7 +150,7 @@ HTTP headers and capsules in {{sec-neg}}.
 
 # Negotiating Extensions Usage {#sec-neg}
 
-This section defines capability negotation and Context ID
+This section defines capability negotiation and Context ID
 configuration for the zero-bytes combined ECN and DSCP extensions.
 
 Note that Context Identifiers are defined as QUIC varints (see Section 16 of
