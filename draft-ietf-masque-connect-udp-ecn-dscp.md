@@ -170,6 +170,7 @@ following format:
 ~~~ ascii-art
 ECN_DSCP_CONTEXT_ASSIGNMENT {
   DSCP_VALUE (6),
+  Reserved(2),
   NOT_ECN_CONTEXT (i)
   ECT_1_CONTEXT (i),
   ECT_0_CONTEXT (i),
@@ -180,6 +181,9 @@ ECN_DSCP_CONTEXT_ASSIGNMENT {
 
 DSCP_VALUE:
 : The DSCP value in the IP valid for the following Context IDs.
+
+Reserved:
+: Reserving two bits to achieve byte alignment for the DSCP_VALUE.
 
 NOT_ECN_CONTEXT:
 : The Context ID used to indicate the payload was marked as Not-ECN-Capable.
@@ -221,6 +225,12 @@ Note that the default context ID of 0 is (re-)used to indicate the default ECN v
 ECN-DSCP-Context-ID: (46,8,10,12,14), (0,0,2,4,6)
 ~~~
 {: #ECN-DSCP-Context-ID-example title="Example of ECN-DSCP-Context-ID header"}
+
+A well formed ECDN-DSCP-Context-ID header field SHALL NOT contain the
+same context ID in multiple inner lists or multiple positions within
+the same list. The same DSCP value SHALL NOT be mapped to
+multiple sets of context IDs from the same endpoint.
+
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
