@@ -16,9 +16,9 @@ address and UDP port. QUIC and Real-time transport protocol (RTP) are examples
 of transport protocols that use UDP and support Explicit Congestion
 Notification (ECN) and provide the necessary feedback. This document specifies
 how ECN and DSCP can be supported through an extension to the Connect-UDP
-protocol for HTTP. 
+protocol for HTTP without per-packet byte overhead, soley using Context IDs. 
     " name="description">
-<meta content="xml2rfc 3.30.2" name="generator">
+<meta content="xml2rfc 3.34.0" name="generator">
 <meta content="quic" name="keyword">
 <meta content="http" name="keyword">
 <meta content="datagram" name="keyword">
@@ -29,23 +29,23 @@ protocol for HTTP.
 <meta content="turtles all the way down" name="keyword">
 <meta content="masque" name="keyword">
 <meta content="http-ng" name="keyword">
-<meta content="draft-westerlund-masque-connect-udp-ecn-dscp-latest" name="ietf.draft">
+<meta content="draft-ietf-masque-connect-udp-ecn-dscp-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.30.2
-    Python 3.12.11
-    ConfigArgParse 1.7
+  xml2rfc 3.34.0
+    Python 3.14.5
+    ConfigArgParse 1.7.5
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 5.3.1
-    platformdirs 4.4.0
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.10.0
     pycountry 24.6.1
-    PyYAML 6.0.2
-    requests 2.32.5
-    setuptools 80.9.0
-    wcwidth 0.2.14
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.8.1
 -->
-<link href="draft-westerlund-masque-connect-udp-ecn-dscp.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-ietf-masque-connect-udp-ecn-dscp.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -184,7 +184,7 @@ protocol for HTTP.
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: 'Oxygen Mono';
@@ -192,7 +192,8 @@ protocol for HTTP.
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 }
 
 @font-face {
@@ -309,16 +310,19 @@ h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
   color: var(--title-color);
 }
-h1#title {
-  font-size: 32px;
-  line-height: 40px;
-  clear: both;
-}
-h1#title, h1#rfcnum {
-  margin: 1.5em 0 0.2em;
-}
-h1#rfcnum + h1#title {
-  margin: 0.2em 0;
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
 }
 
 h1, h2, h3 {
@@ -338,10 +342,10 @@ h4, h5, h6 {
 #abstract+p {
   font-size: 18px;
   line-height: 24px;
-}
-#abstract+p code, #abstract+p samp, #abstract+p tt {
-  font-size: 16px;
-  line-height: 0;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
 }
 
 p {
@@ -352,59 +356,59 @@ p {
 div {
   margin: 0;
 }
-.alignRight.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignRight.art-text pre {
-  padding: 0;
-  width: auto;
-}
 .alignRight {
   margin: 1em 0;
-}
-.alignRight > *:first-child {
-  border: none;
-  margin: 0;
-  float: right;
-  clear: both;
-}
-.alignRight > *:nth-child(2) {
-  clear: both;
-  display: block;
-  border: none;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
 }
 svg {
   display: block;
-}
-/* font-family isn't space-separated, but =~ will have to do */
-svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
-  font-family: var(--font-mono);
-}
-.alignCenter.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignCenter.art-text pre {
-  padding: 0;
-  width: auto;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
 }
 .alignCenter {
   margin: 1em 0;
-}
-.alignCenter > *:first-child {
-  border: none;
-  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
-     support flexbox yet.
-  */
-  display: table;
-  margin: 0 auto;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
 }
 
 /* lists */
@@ -442,26 +446,25 @@ dl {
     --indent: 5ch;
     & > dt {
       min-width: calc(var(--indent) - 2ch);
+      float: none;
     }
-  }
-  &.olPercent > dt {
-    float: none;
   }
 
   dl > dd > & {
     margin-top: 0.5em;
     margin-bottom: 0;
   }
-}
-dl:not(.dlNewline) > dt {
-  float: left;
-  margin-right: 2ch;
-  min-width: 8ch;
-}
-dl > dd {
-  margin-bottom: .8em;
-  margin-left: var(--indent) !important; /* stupid element overrides */
-  min-height: 2ex;
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
 }
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
@@ -477,20 +480,22 @@ dl > dd {
 }
 
 /* links */
-a, a[href].selfRef:hover {
+a {
   text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
 }
-a[href] {
-  color: var(--link-color);
-}
-a[href].selfRef, .iref + a[href].internal {
+.iref + a[href].internal {
   color: var(--text-color);
-}
-a[href]:hover {
-  text-decoration: underline;
-}
-a[href].selfRef:hover {
-  background-color: var(--highlight-color);
 }
 a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
   white-space: nowrap;
@@ -526,9 +531,9 @@ img {
 figure {
   margin: 0.5em 0;
   padding: 0;
-}
-figure blockquote {
-  margin: 0.8em 0.4em 0.4em;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
 }
 figcaption, caption {
   font-style: italic;
@@ -538,17 +543,19 @@ figcaption, caption {
 }
 @media screen {
   /* Auto-collapse boilerplate. */
-  :is(#status-of-memo, #copyright) p {
-    margin: -2px 0;
-    max-height: 0;
-    transition: max-height 2s ease, margin 0.5s ease 0.5s;
-    overflow: hidden;
-  }
-  :is(#status-of-memo, #copyright):hover p,
-  :is(#status-of-memo, #copyright) h2:target ~ p {
-    margin: 0.5em 0;
-    max-height: 500px;
-    overflow: auto;
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
   }
   pre, svg {
     display: inline-block;
@@ -584,6 +591,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -597,25 +605,17 @@ table {
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
-}
-table.right {
-  margin-left: auto;
-}
-table.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-table.left {
-  margin-right: auto;
-}
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
 }
 
 thead, tbody {
@@ -635,13 +635,6 @@ th {
 :is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
   background-color: var(--highlight-color);
 }
-table caption {
-  margin: 0;
-  padding: 3px 0 3px 1em;
-}
-table p {
-  margin: 0;
-}
 
 /* pilcrow */
 a.pilcrow {
@@ -652,18 +645,16 @@ a.pilcrow {
     color: var(--pilcrow-weak);
     &:hover { text-decoration: none; }
   }
-}
-@media not print {
-  :hover > a.pilcrow {
-    opacity: 1;
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
   }
-  a.pilcrow[href]:hover {
-    color: var(--pilcrow-strong);
-    background-color: transparent;
-  }
-}
-@media print {
-  a.pilcrow {
+  @media print {
     display: none;
   }
 }
@@ -722,9 +713,9 @@ sub, sup {
   font-size: 0.9em;
   font-style: italic;
   margin-top: 2em;
-}
-.docInfo .prepared {
-  float: right;
+  & .prepared {
+    float: right;
+  }
 }
 
 /* table of contents */
@@ -814,23 +805,27 @@ hr.addr {
   max-width: calc(100% - 16px);
 }
 @media (min-width: 500px) {
-  #authors-addresses > section {
-    column-count: 2;
-    column-gap: 20px;
-  }
-  #authors-addresses > section > h2 {
-    column-span: all;
-  }
-  /* hack for break-inside: avoid-column */
-  #authors-addresses address {
-    display: inline-block;
-    break-inside: avoid-column;
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
   }
 }
 
 /* Comments */
-.rfcEditorRemove p:first-of-type {
-  font-style: italic;
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
 }
 .cref {
   background-color: rgba(249, 232, 105, 0.3);
@@ -841,19 +836,21 @@ hr.addr {
 }
 
 @media screen {
-  #toc nav {
-    font-family: var(--font-title);
-    font-weight: 360;
-    & > ul { margin-bottom: 2em; }
-    & ul {
-      margin: 0 0 0 4px;
-      & :is(p, li) {
-        margin: 2px 0;
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
       }
     }
-  }
-  #toc a.toplink {
-    float: right;
+    & a.toplink {
+      float: right;
+    }
   }
 }
 @media not screen {
@@ -874,54 +871,54 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 2px 0 2px 6px;
-    padding-right: 1em;
-    font-size: 18px;
-    line-height: 24px;
-    min-width: 190px;
-    text-align: right;
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-    &::before { /* css hamburger */
-      float: right;
-      position: relative;
-      width: 1em;
-      height: 1px;
-      left: -164px;
-      margin: 8px 0 0 0;
-      background: white none repeat scroll 0 0;
-      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-      content: "";
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
     }
-  }
-  #toc nav {
-    display: none;
-    background-color: var(--background-color);
-    padding: 0.5em 1em 1em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    height: calc(100vh - 48px);
-    border-left: 1px solid #ddd;
-  }
-  #toc.active {
-    opacity: 1;
-    & nav { display: block; }
-  }
-  /* Make the collapsed ToC header render white on gray also when it's a link */
-  #toc h2 a,
-  #toc h2 a:is(:link, :focus, :hover),
-  #toc a.toplink,
-  #toc a.toplink:hover {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-  }
-  #toc a.toplink {
-    margin: 2px 0.5em 0;
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
   }
 }
 
@@ -940,26 +937,26 @@ hr.addr {
     margin: 0;
     padding: 0;
     z-index: 1;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 0.25em 1em 1em 0;
-  }
-  #toc nav {
-    display: block;
-    height: calc(90vh - 84px);
-    bottom: 0;
-    padding: 0.5em 0 2em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
   }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
-  }
-  #toc a.toplink {
-    margin: 8px 0.5em 0;
   }
 }
 
@@ -975,12 +972,13 @@ hr.addr {
   #n-copyright-notice {
     border-bottom: none;
   }
-  #toc, #n-introduction {
-    page-break-before: always;
-  }
   #toc {
+    page-break-before: always;
     border-top: none;
     padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
   }
   figure, pre, .vcard {
     page-break-inside: avoid;
@@ -1042,17 +1040,19 @@ hr.addr {
 }
 
 /* SVG Trick: a prefix match works because only black and white are allowed */
-svg :is([stroke="black"], [stroke^="#000"]) {
-  stroke: var(--text-color);
-}
-svg :is([stroke="white"], [stroke^="#fff"]) {
-  stroke: var(--background-color);
-}
-svg :is([fill="black"], [fill^="#000"], :not([fill])) {
-  fill: var(--text-color);
-}
-svg :is([fill="white"], [fill^="#fff"]) {
-  fill: var(--background-color);
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
 }
 </style>
 
@@ -1062,11 +1062,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">ECN and DSCP support for HTTPS's Connect</td>
-<td class="right">October 2025</td>
+<td class="right">June 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Westerlund, et al.</td>
-<td class="center">Expires 20 April 2026</td>
+<td class="center">Expires 31 December 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1076,15 +1076,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">MASQUE</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-westerlund-masque-connect-udp-ecn-dscp-latest</dd>
+<dd class="internet-draft">draft-ietf-masque-connect-udp-ecn-dscp-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-10-17" class="published">17 October 2025</time>
+<time datetime="2026-06-29" class="published">29 June 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-04-20">20 April 2026</time></dd>
+<dd class="expires"><time datetime="2026-12-31">31 December 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1115,7 +1115,7 @@ address and UDP port. QUIC and Real-time transport protocol (RTP) are examples
 of transport protocols that use UDP and support Explicit Congestion
 Notification (ECN) and provide the necessary feedback. This document specifies
 how ECN and DSCP can be supported through an extension to the Connect-UDP
-protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+protocol for HTTP without per-packet byte overhead, soley using Context IDs.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1124,7 +1124,7 @@ protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
         The latest revision of this draft can be found at <span><a href="https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-connect-udp-ecn.html">https://gloinul.github.io/masque-ecn/#go.draft-westerlund-masque-connect-udp-ecn.html</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-westerlund-masque-connect-udp-ecn-dscp/">https://datatracker.ietf.org/doc/draft-westerlund-masque-connect-udp-ecn-dscp/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-ietf-masque-connect-udp-ecn-dscp/">https://datatracker.ietf.org/doc/draft-ietf-masque-connect-udp-ecn-dscp/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
         MASQUE Working Group mailing list (<span><a href="mailto:masque@ietf.org">mailto:masque@ietf.org</a></span>),
@@ -1152,7 +1152,7 @@ protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 31 December 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1161,7 +1161,7 @@ protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2025 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1188,101 +1188,81 @@ protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions" class="internal xref">Conventions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-ecn-zero-byte-extension" class="internal xref">ECN-zero-byte Extension</a></p>
+            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-zero-byte-combined-ecn-and-" class="internal xref">Zero-byte Combined ECN and DSCP Extension</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-dscp-ecn-extension" class="internal xref">DSCP/ECN Extension</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-negotiating-extensions-usag" class="internal xref">Negotiating Extensions Usage</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-ecn-dscp-context-assignment" class="internal xref">ECN DSCP Context Assignment Format</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-http-structured-field" class="internal xref">HTTP Structured field</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-ecn-dscp-context-id-assignm" class="internal xref">ECN DSCP Context ID Assignment and ACK Capsules</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-negotiating-extensions-usag" class="internal xref">Negotiating Extensions Usage</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-tunnels-and-dscp-and-ecn-ma" class="internal xref">Tunnels and DSCP and ECN marking interactions</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-ecn-zero-byte-extension-2" class="internal xref">ECN-zero-byte Extension</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1.2.1">
-                    <p id="section-toc.1-1.5.2.1.2.1.1"><a href="#section-5.1.1" class="auto internal xref">5.1.1</a>.  <a href="#name-http-structured-field" class="internal xref">HTTP Structured field</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1.2.2">
-                    <p id="section-toc.1-1.5.2.1.2.2.1"><a href="#section-5.1.2" class="auto internal xref">5.1.2</a>.  <a href="#name-ecn-context-id-assignment-c" class="internal xref">ECN Context ID Assignment Capsule</a></p>
-</li>
-                </ul>
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-tunnel-endpoint-marking" class="internal xref">Tunnel Endpoint Marking</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-ecn-dscp-extension" class="internal xref">ECN/DSCP extension</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2.2.1">
-                    <p id="section-toc.1-1.5.2.2.2.1.1"><a href="#section-5.2.1" class="auto internal xref">5.2.1</a>.  <a href="#name-http-structured-header" class="internal xref">HTTP Structured Header</a></p>
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-dscp-remarking-consideratio" class="internal xref">DSCP Remarking Considerations</a></p>
 </li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2.2.2">
-                    <p id="section-toc.1-1.5.2.2.2.2.1"><a href="#section-5.2.2" class="auto internal xref">5.2.2</a>.  <a href="#name-dscp-ecn-context-id-assignm" class="internal xref">DSCP/ECN Context ID Assignment Capsule</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-tunnel-transport-connection" class="internal xref">Tunnel Transport Connection ECN Interactions and Congestion Control</a></p>
 </li>
-                </ul>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4">
+                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-tunnel-transport-connection-" class="internal xref">Tunnel Transport Connection DSCP Interactions</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5">
+                <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="auto internal xref">5.5</a>.  <a href="#name-quic-aware-forwarding" class="internal xref">QUIC Aware Forwarding</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-tunnels-and-dscp-and-ecn-ma" class="internal xref">Tunnels and DSCP and ECN marking interactions</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-tunnel-endpoint-marking" class="internal xref">Tunnel Endpoint Marking</a></p>
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-http-field-names" class="internal xref">HTTP Field Names</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1.2.1">
+                    <p id="section-toc.1-1.6.2.1.2.1.1"><a href="#section-6.1.1" class="auto internal xref">6.1.1</a>.  <a href="#name-dscp-ecn-context-id" class="internal xref">DSCP-ECN-Context-ID</a></p>
+</li>
+                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-dscp-remarking-consideratio" class="internal xref">DSCP Remarking Considerations</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-http-capsule-type" class="internal xref">HTTP Capsule Type</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2.2.1">
+                    <p id="section-toc.1-1.6.2.2.2.1.1"><a href="#section-6.2.1" class="auto internal xref">6.2.1</a>.  <a href="#name-ecn_dscp_context_assign" class="internal xref">ECN_DSCP_CONTEXT_ASSIGN</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
-                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-tunnel-transport-connection" class="internal xref">Tunnel Transport Connection ECN Interactions and Congestion Control</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2.2.2">
+                    <p id="section-toc.1-1.6.2.2.2.2.1"><a href="#section-6.2.2" class="auto internal xref">6.2.2</a>.  <a href="#name-dscp_ecn_context_ack" class="internal xref">DSCP_ECN_CONTEXT_ACK</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
-                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-tunnel-transport-connection-" class="internal xref">Tunnel Transport Connection DSCP Interactions</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5">
-                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-quic-aware-forwarding" class="internal xref">QUIC Aware Forwarding</a></p>
+                </ul>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-references" class="internal xref">References</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
-                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-http-field-names" class="internal xref">HTTP Field Names</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.1">
-                    <p id="section-toc.1-1.7.2.1.2.1.1"><a href="#section-7.1.1" class="auto internal xref">7.1.1</a>.  <a href="#name-ecn-context-id" class="internal xref">ECN-Context-ID</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.2">
-                    <p id="section-toc.1-1.7.2.1.2.2.1"><a href="#section-7.1.2" class="auto internal xref">7.1.2</a>.  <a href="#name-dscp-ecn-context-id" class="internal xref">DSCP-ECN-Context-ID</a></p>
-</li>
-                </ul>
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
-                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-http-capsule-type" class="internal xref">HTTP Capsule Type</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2.2.1">
-                    <p id="section-toc.1-1.7.2.2.2.1.1"><a href="#section-7.2.1" class="auto internal xref">7.2.1</a>.  <a href="#name-ecn_context_assign" class="internal xref">ECN_CONTEXT_ASSIGN</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2.2.2">
-                    <p id="section-toc.1-1.7.2.2.2.2.1"><a href="#section-7.2.2" class="auto internal xref">7.2.2</a>.  <a href="#name-dscp_ecn_context_assign" class="internal xref">DSCP_ECN_CONTEXT_ASSIGN</a></p>
-</li>
-                </ul>
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
-                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
-</li>
-            </ul>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1298,29 +1278,21 @@ protocol for HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 support for carrying the ECN bits between the HTTP Connect-UDP client and the
 HTTP server proxying the UDP flow. Thus, it is not possible to establish the
 end-to-end ECN information flow necessary to support either classic ECN
-<span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> or L4S <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> or L4S <span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span>, <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">Diffserv <span>[<a href="#RFC2475" class="cite xref">RFC2475</a>]</span> enables differential network treatment of packets.
 Connect-UDP, as currently defined, lacks support for carrying the DSCP
 field <span>[<a href="#RFC2474" class="cite xref">RFC2474</a>]</span> through the tunnel.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">This document specifies two Connect-UDP extensions that enable end-to-end ECN
-and DSCP for proxied connections: an ECN-zero-bytes extension, which adds no
-overhead by encoding the ECN value directly into the Context ID; and an
-ECN/DSCP extension, which carries both DSCP and ECN in the HTTP Datagram
-payload. For these two extensions, this document specifies negotiation and
-defines a new Datagram context that carries the DSCP and ECN bits and the UDP
-payload, replacing the context defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-3">This document specifies a Connect-UDP extensions that enable end-to-end ECN
+and DSCP for proxied connections: the zero-bytes extension adds no
+per-packet overhead by encoding the ECN and DSCP values directly into Context IDs.
+This document specifies negotiation to provide an intial set of Context IDs
+and capsules for dynamic updates.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">An alternative to this extension is Connect-IP <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span>; however, it carries
 a full IP header between the HTTP client and server, resulting in significantly
-more overhead than this extension, which requires zero or one byte to carry
-both the DSCP and ECN bits.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">To define a solution that can be combined with other extensions, and thus other
-contexts, without redefining each combination, the extensions defined in this
-document indicate not only the ECN and DSCP values but also the next Context ID.
-The ECN-zero-bytes extension defines three additional Context ID values that are
-bound to an HTTP Datagram payload identifying the Context ID and indicate whether
-the packet was marked with ECT(0), ECT(1), or CE, respectively.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">An endpoint should not enable both extensions defined in this document, as that
-would lead to confusion if both extensions indicate different ECN values.<a href="#section-1-6" class="pilcrow">¶</a></p>
+more overhead than this extension.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">This extension is defined such that they allow clients to optimistically start
+sending UDP packets in HTTP Datagrams, i.e. before receiving the response to its
+UDP proxying request, as described in <span><a href="https://rfc-editor.org/rfc/rfc9298#section-5" class="relref">Section 5</a> of [<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions">
@@ -1335,32 +1307,26 @@ described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</s
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="sec-CONTEXT-ECN">
+<div id="sec-CONTEXT">
 <section id="section-3">
-      <h2 id="name-ecn-zero-byte-extension">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-ecn-zero-byte-extension" class="section-name selfRef">ECN-zero-byte Extension</a>
+      <h2 id="name-zero-byte-combined-ecn-and-">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-zero-byte-combined-ecn-and-" class="section-name selfRef">Zero-byte Combined ECN and DSCP Extension</a>
       </h2>
-<p id="section-3-1">For a zero-overhead encoding, the ECN bits can be indicated by using different
-Context IDs. At the same time, the Context ID indicates which Context ID would
-otherwise have been used to identify the structure of the rest of the HTTP
-payload, which we call the payload-identifying context ID, or short payload
-ID. Often this is the basic UDP-payload context (Context ID 0) as defined by
-<span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The core of this solution is to define additional Context IDs (A, B, and C) for
-a Connect-UDP stream that indicate ECN values other than Not-ECT, i.e., ECT(1),
-ECT(0), or CE <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span>. This idea is shown in <a href="#ECN-Encoding-Table" class="auto internal xref">Table 1</a>.<a href="#section-3-2" class="pilcrow">¶</a></p>
-<span id="name-ecn-encoding-table"></span><div id="ECN-Encoding-Table">
+<p id="section-3-1">For a zero-overhead encoding, the ECN and DSCP bits are indicated by using different
+Context IDs. An example use of three additional Context IDs to only encode the ECN
+bit used together with a DSCP of 0 is shown in <a href="#ECN-Encoding-Table" class="auto internal xref">Table 1</a>.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<span id="name-ecn-only-encoding-table"></span><div id="ECN-Encoding-Table">
 <table class="center" id="table-1">
         <caption>
 <a href="#table-1" class="selfRef">Table 1</a>:
-<a href="#name-ecn-encoding-table" class="selfRef">ECN Encoding Table</a>
+<a href="#name-ecn-only-encoding-table" class="selfRef">ECN-only Encoding Table</a>
         </caption>
 <thead>
           <tr>
             <th class="text-right" rowspan="1" colspan="1">Context ID Value</th>
             <th class="text-left" rowspan="1" colspan="1">ECN bit</th>
             <th class="text-left" rowspan="1" colspan="1">ECN Value</th>
-            <th class="text-left" rowspan="1" colspan="1">Payload ID</th>
+            <th class="text-left" rowspan="1" colspan="1">DSCP Value</th>
           </tr>
         </thead>
         <tbody>
@@ -1371,19 +1337,19 @@ ECT(0), or CE <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span>. T
             <td class="text-left" rowspan="1" colspan="1">0</td>
           </tr>
           <tr>
-            <td class="text-right" rowspan="1" colspan="1">A</td>
+            <td class="text-right" rowspan="1" colspan="1">2</td>
             <td class="text-left" rowspan="1" colspan="1">0b01</td>
             <td class="text-left" rowspan="1" colspan="1">ECT(1)</td>
             <td class="text-left" rowspan="1" colspan="1">0</td>
           </tr>
           <tr>
-            <td class="text-right" rowspan="1" colspan="1">B</td>
+            <td class="text-right" rowspan="1" colspan="1">4</td>
             <td class="text-left" rowspan="1" colspan="1">0b10</td>
             <td class="text-left" rowspan="1" colspan="1">ECT(0)</td>
             <td class="text-left" rowspan="1" colspan="1">0</td>
           </tr>
           <tr>
-            <td class="text-right" rowspan="1" colspan="1">C</td>
+            <td class="text-right" rowspan="1" colspan="1">6</td>
             <td class="text-left" rowspan="1" colspan="1">0b11</td>
             <td class="text-left" rowspan="1" colspan="1">CE</td>
             <td class="text-left" rowspan="1" colspan="1">0</td>
@@ -1391,299 +1357,172 @@ ECT(0), or CE <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span>. T
         </tbody>
       </table>
 </div>
-<p id="section-3-4">No new Context ID value is defined to represent Not-ECT, since using a Context
+<p id="section-3-3">No new Context ID value is defined to represent Not-ECT, since using a Context
 ID without this extension would, by default, imply Not-ECT. Additionally,
 Context IDs are defined to represent the combination of an ECN value other than
-Not-ECT and the payload-identifying Context ID. If an application uses more
-Context ID values than just zero, additional Context IDs must be defined.<a href="#section-3-4" class="pilcrow">¶</a></p>
-<p id="section-3-5">This extension results in four times as many Context IDs within a single
-Connect-UDP stream. We expect that this is acceptable in most cases, as a total
-of 64 Context IDs can be encoded in a single byte, thus resulting in no packet
-expansion. However, for applications that have more than 16 original Context IDs
-(including zero), it is recommended to use the ECN/DSCP extension
-<a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>, which only doubles the number of Context IDs but requires an
-additional byte in the payload.<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">An endpoint enabling this extension MUST define all three ECN values, even if
+Not-ECT and the DSCP values. If an application uses more
+DCSP values than just zero, additional Context IDs must be defined.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">This extension results in four times as many Context IDs within a single
+Connect-UDP stream for each DSCP values used. We expect that this is acceptable in most cases, as a total
+of 31 client initiated Context IDs can be encoded in a single byte, thus resulting in no packet
+expansion for applications that use upto 8 DSCP values.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">An endpoint enabling this extension MUST define all three ECN values, even if
 the ECN-enabled application expects that only one ECT value (and CE) is used.
 This is because of transmission errors or erroneous remarking in the network,
-where the other ECT codepoint, as well as Not-ECT, may be observed.<a href="#section-3-6" class="pilcrow">¶</a></p>
-<p id="section-3-7">Negotiation of the conetxt ID values is defined using both
-HTTP headers and capsulses in <a href="#sec-neg-ECN-Zero" class="auto internal xref">Section 5.1</a>.<a href="#section-3-7" class="pilcrow">¶</a></p>
+where the other ECT codepoint, as well as Not-ECT, may be observed.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">Negotiation of the context ID values is defined using both
+HTTP headers and capsules in <a href="#sec-neg" class="auto internal xref">Section 4</a>.<a href="#section-3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="sec-DSCP-ECN">
+<div id="sec-neg">
 <section id="section-4">
-      <h2 id="name-dscp-ecn-extension">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-dscp-ecn-extension" class="section-name selfRef">DSCP/ECN Extension</a>
+      <h2 id="name-negotiating-extensions-usag">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-negotiating-extensions-usag" class="section-name selfRef">Negotiating Extensions Usage</a>
       </h2>
-<p id="section-4-1">The HTTP Datagram Payload format is defined in <span>[<a href="#RFC9484" class="cite xref">RFC9484</a>]</span> as depicted below.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<span id="name-ecn-enabled-udp-proxying-ht"></span><div id="dgram-format">
+<p id="section-4-1">This section defines capability negotiation and Context ID
+configuration for the zero-bytes combined ECN and DSCP extensions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">Note that Context Identifiers are defined as QUIC varints (see Section 16 of
+<span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) and support values up to 4,611,686,018,427,387,903 (2^62-1), which is
+larger than what a Structure Header Integer supports (limited to
+999,999,999,999,999). We foresee no issues with this limitation, as Context
+Identifiers should primarily use the single-byte representation for efficiency,
+i.e., they should rarely exceed 63.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<div id="sec-format">
+<section id="section-4.1">
+        <h3 id="name-ecn-dscp-context-assignment">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-ecn-dscp-context-assignment" class="section-name selfRef">ECN DSCP Context Assignment Format</a>
+        </h3>
+<p id="section-4.1-1">In this extension four Context IDs need to be configured for each DSCP value.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">A configuration of ECN and DSCP signaling is represented by a five-tuple with the
+following format:<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<span id="name-ecn-dscp-context-assignment-"></span><div id="ECN-DSCP-Format">
 <figure id="figure-1">
-        <div class="alignLeft art-ascii-art art-text artwork" id="section-4-2.1">
+          <div class="alignLeft art-ascii-art art-text artwork" id="section-4.1-3.1">
 <pre>
-UDP Proxying HTTP Datagram Payload {
-  Context ID (i),
-  UDP Proxying Payload (..)
+ECN_DSCP_CONTEXT_ASSIGNMENT {
+  DSCP_VALUE (6),
+  NOT_ECN_CONTEXT (i)
+  ECT_1_CONTEXT (i),
+  ECT_0_CONTEXT (i),
+  CE_CONTEXT (i),
 }
 </pre>
 </div>
 <figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
-<a href="#name-ecn-enabled-udp-proxying-ht" class="selfRef">ECN enabled UDP Proxying HTTP Datagram Format</a>
-        </figcaption></figure>
-</div>
-<p id="section-4-3">For the ECN/DSCP extension, the ECN/DSCP UDP Proxying Payload is defined in the following way:<a href="#section-4-3" class="pilcrow">¶</a></p>
-<span id="name-ecn-dscp-udp-proxying-paylo"></span><div id="UDP-Proxying-Payload">
-<figure id="figure-2">
-        <div class="alignLeft art-ascii-art art-text artwork" id="section-4-4.1">
-<pre>
-ECN/DSCP UDP Proxying Payload {
-  DSCP(6),
-  ECN(2),
-  UDP Proxying Payload (..) # Payload per another Context ID definition
-}
-</pre>
-</div>
-<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
-<a href="#name-ecn-dscp-udp-proxying-paylo" class="selfRef">ECN/DSCP UDP Proxying Payload</a>
-        </figcaption></figure>
-</div>
-<p id="section-4-5">DSCP: A six bit field carrying the Differentiated Service Code Point
-    as defined by <span>[<a href="#RFC2474" class="cite xref">RFC2474</a>]</span> associated with this UDP Proxying Payload.<a href="#section-4-5" class="pilcrow">¶</a></p>
-<p id="section-4-6">ECN: A two bit field carrying the IP ECN bits as defined by Section 5
-    of <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> to be set or as received on the IP/UDP packet
-    carrying the UDP Datagram payload included.<a href="#section-4-6" class="pilcrow">¶</a></p>
-<p id="section-4-7">UDP Proxying Payload: Another UDP Proxying Payload following the ECN
-    carrying byte. This uses another Context ID as negotiated,
-    e.g. Context ID 0.  Thus enabling this byte to be combined with
-    any other payload.<a href="#section-4-7" class="pilcrow">¶</a></p>
-<p id="section-4-8">This format used a negotiated context ID that MUST be non-zero. It
-MUST also negotiate the payload-identifying context ID.<a href="#section-4-8" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="sec-neg-ECN">
-<section id="section-5">
-      <h2 id="name-negotiating-extensions-usag">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-negotiating-extensions-usag" class="section-name selfRef">Negotiating Extensions Usage</a>
-      </h2>
-<p id="section-5-1">This section defines capability negotation and Context ID
-configuration for the two defined extensions.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">Note that Context Identifiers are defined as QUIC varints (see Section 16 of
-<span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) and support values up to 4,611,686,018,427,387,903, which is
-larger than what a Structure Header Integer supports (limited to
-999,999,999,999,999). We foresee no issues with this limitation, as Context
-Identifiers should primarily use the single-byte representation for efficiency,
-i.e., they should rarely exceed 63.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<div id="sec-neg-ECN-Zero">
-<section id="section-5.1">
-        <h3 id="name-ecn-zero-byte-extension-2">
-<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-ecn-zero-byte-extension-2" class="section-name selfRef">ECN-zero-byte Extension</a>
-        </h3>
-<p id="section-5.1-1">To use the ECN-zero-byte extension three Context IDs need to be configured
-relative to the Context ID that identifies the actual HTTP Datagram payload.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1-2">A configuration of ECN signaling is represented by a four-tuple with the
-following format:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
-<span id="name-ecn-context-assignment-form"></span><div id="ECN-CAP-CONTEXT-Format">
-<figure id="figure-3">
-          <div class="alignLeft art-ascii-art art-text artwork" id="section-5.1-3.1">
-<pre>
-ECN_CONTEXT_ASSIGNMENT {
-  ECT_1_CONTEXT (i),
-  ECT_0_CONTEXT (i),
-  CE_CONTEXT (i),
-  PAYLOAD_CONTEXT (i)
-}
-</pre>
-</div>
-<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
-<a href="#name-ecn-context-assignment-form" class="selfRef">ECN CONTEXT ASSIGNMENT Format</a>
+<a href="#name-ecn-dscp-context-assignment-" class="selfRef">ECN DSCP CONTEXT ASSIGNMENT Format</a>
           </figcaption></figure>
 </div>
-<span class="break"></span><dl class="dlParallel" id="section-5.1-4">
-          <dt id="section-5.1-4.1">ECT_1_CONTEXT:</dt>
-          <dd style="margin-left: 1.5em" id="section-5.1-4.2">
-            <p id="section-5.1-4.2.1">The Context ID used to indicate the payload was marked with ECN value ECT(1).<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4.1-4">
+          <dt id="section-4.1-4.1">DCSP_VALUE:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-4.2">
+            <p id="section-4.1-4.2.1">The DSCP value in the IP valid for the following Context IDs.<a href="#section-4.1-4.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-5.1-4.3">ECT_0_CONTEXT:</dt>
-          <dd style="margin-left: 1.5em" id="section-5.1-4.4">
-            <p id="section-5.1-4.4.1">The Context ID used to indicate the payload was marked with ECN value ECT(0).<a href="#section-5.1-4.4.1" class="pilcrow">¶</a></p>
+<dt id="section-4.1-4.3">NOT_ECN_CONTEXT:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-4.4">
+            <p id="section-4.1-4.4.1">The Context ID used to indicate the payload was marked as Not-ECN-Capable.<a href="#section-4.1-4.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-5.1-4.5">CE_CONTEXT:</dt>
-          <dd style="margin-left: 1.5em" id="section-5.1-4.6">
-            <p id="section-5.1-4.6.1">The Context ID used to indicate the payload was marked with ECN value CE.<a href="#section-5.1-4.6.1" class="pilcrow">¶</a></p>
+<dt id="section-4.1-4.5">ECT_1_CONTEXT:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-4.6">
+            <p id="section-4.1-4.6.1">The Context ID used to indicate the payload was marked with ECN value ECT(1).<a href="#section-4.1-4.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-5.1-4.7">PAYLOAD_CONTEXT:</dt>
-          <dd style="margin-left: 1.5em" id="section-5.1-4.8">
-            <p id="section-5.1-4.8.1">The payload-identifiying context ID indicating the actual encoding of the
-start of the HTTP Datagram payload.<a href="#section-5.1-4.8.1" class="pilcrow">¶</a></p>
+<dt id="section-4.1-4.7">ECT_0_CONTEXT:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-4.8">
+            <p id="section-4.1-4.8.1">The Context ID used to indicate the payload was marked with ECN value ECT(0).<a href="#section-4.1-4.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.1-4.9">CE_CONTEXT:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-4.10">
+            <p id="section-4.1-4.10.1">The Context ID used to indicate the payload was marked with ECN value CE.<a href="#section-4.1-4.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
 <div id="http-structured-field">
-<section id="section-5.1.1">
+<section id="section-4.1.1">
           <h4 id="name-http-structured-field">
-<a href="#section-5.1.1" class="section-number selfRef">5.1.1. </a><a href="#name-http-structured-field" class="section-name selfRef">HTTP Structured field</a>
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-http-structured-field" class="section-name selfRef">HTTP Structured field</a>
           </h4>
-<p id="section-5.1.1-1">ECN-Context-ID is a Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its value is a List
-consisting of zero or more Inner Lists, where the Inner List contains four
-Integer Items. The Integer Items MUST be non-negative, as they are context
-identifiers defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The four Context IDs are those defined in
-<a href="#ECN-CAP-CONTEXT-Format" class="auto internal xref">Figure 3</a>, in that order.<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-2">When the header is included in an Extended Connect request, it indicates, first
+<p id="section-4.1.1-1">ECN-DSCP-Context-ID is a Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its value is a List
+consisting of zero or more Inner Lists, where the Inner List contains five
+Integer Items. The Integer Items MUST be non-negative, as they are DSCP values
+and Context ID defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The DSCP value and four ECN Context IDs are those defined in
+<a href="#ECN-DSCP-Format" class="auto internal xref">Figure 1</a>, in that order.<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-2">When the header is included in an Extended Connect request, it indicates, first
 of all, support for this ECN extension. Secondly, it may define one or more
-4-item inner lists of Context IDs for the requestor-to-responder direction.
-If no 4-item inner lists of Context IDs are included, then this header only
+5-item inner lists of DSCP values and corresponding ECN Context IDs for the requestor-to-responder direction.
+If no 5-item inner lists of Context IDs are included, then this header only
 indicates support for the extension, and the Context IDs MAY be signaled using
-capsules.<a href="#section-5.1.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-3">When the request includes the ECN-Context-ID header, the responder MAY include
-this header in the response. If included, it defines the Context ID used in the
-responder-to-requestor direction.<a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-4">The following example indicates support for ECN-zero-byte-extension and
-defines two sets of Context IDs: ID=5, 6, 7 (ECT(1), ECT(0), CE) combined with
-Context ID 4; and ID=1, 2, 3 combined with the default ID=0 as defined in
-<span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
-<span id="name-example-of-ecn-context-id-h"></span><div id="ECN-Context-ID-example">
-<figure id="figure-4">
-            <div class="alignLeft art-ascii-art art-text artwork" id="section-5.1.1-5.1">
+capsules.<a href="#section-4.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-3">When the request includes the ECN-DSCP-Context-ID header, the responder MAY include
+this header in the response. If included with one or more 5-item inner lists, it
+defines Context ID defined by the server, usable in either direction.<a href="#section-4.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-4">The following example indicates support for this extension and defines
+two sets of client initiated Context IDs: ID= 10, 12, 14, 16 (Not-ECN-Capable, ECT(1), ECT(0), CE)
+combined with DSCP 46 for Expedited Forwarding (EF): 46 ; and ID=0, 4, 6, 8 combined with the default DSCP value of 0.
+Note that the default context ID of 0 is (re-)used to indicate the default ECN value of Not-ECN Capable.<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
+<span id="name-example-of-ecn-dscp-context"></span><div id="ECN-DSCP-Context-ID-example">
+<figure id="figure-2">
+            <div class="alignLeft art-ascii-art art-text artwork" id="section-4.1.1-5.1">
 <pre>
-ECN-Context-ID: (5,6,7,4), (1,2,3,0)
+ECN-Context-ID: (46,8,10,12,14), (0,0,2,4,6 )
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-example-of-ecn-dscp-context" class="selfRef">Example of ECN-DSCP-Context-ID header</a>
+            </figcaption></figure>
+</div>
+</section>
+</div>
+<div id="ecn-dscp-context-id-assignment-and-ack-capsules">
+<section id="section-4.1.2">
+          <h4 id="name-ecn-dscp-context-id-assignm">
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-ecn-dscp-context-id-assignm" class="section-name selfRef">ECN DSCP Context ID Assignment and ACK Capsules</a>
+          </h4>
+<p id="section-4.1.2-1">The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
+after negotiation and initial assignment in the HTPP header.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
+<span id="name-ecn_dscp_context_assign-cap"></span><div id="CAP-Format-Assign">
+<figure id="figure-3">
+            <div class="alignLeft art-ascii-art art-text artwork" id="section-4.1.2-2.1">
+<pre>
+ECN_DSCP_CONTEXT_ASSIGN Capsule {
+  Type (i) = TBA_1
+  Length (i),
+  ECN_DSCP_CONTEXT_ASSIGNMENT (..) ...,
+}
+</pre>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-ecn_dscp_context_assign-cap" class="selfRef">ECN_DSCP_CONTEXT_ASSIGN Capsule Format</a>
+            </figcaption></figure>
+</div>
+<p id="section-4.1.2-3">Type and Length as defined by Section 3.2 of the HTTP Capsule specification
+<span>[<a href="#RFC9297" class="cite xref">RFC9297</a>]</span>. The capsule value is the ECN_DSCP_CONTEXT_ASSIGNMENT defined above in
+<a href="#ECN-DSCP-Format" class="auto internal xref">Figure 1</a>. Thus, the capsule value consists of zero or more
+ECN_DSCP_CONTEXT_ASSIGNMENT five-tuples.<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.1.2-4">The ECN_DSCP_CONTEXT_ACK capsule confirms the registration of a context IDs that were received via a
+ECN_DSCP_CONTEXT_ASSIGN capsule.<a href="#section-4.1.2-4" class="pilcrow">¶</a></p>
+<span id="name-ecn_dscp_context_ack-capsul"></span><div id="CAP-Format-Ack">
+<figure id="figure-4">
+            <div class="alignLeft art-ascii-art art-text artwork" id="section-4.1.2-5.1">
+<pre>
+ECN_DSCP_CONTEXT_ACK Capsule {
+  Type (i) = TBA_2
+  Length (i),
+  ECN_DSCP_CONTEXT_ASSIGNMENT (..) ...,
+}
 </pre>
 </div>
 <figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
-<a href="#name-example-of-ecn-context-id-h" class="selfRef">Example of ECN-Context-ID header</a>
+<a href="#name-ecn_dscp_context_ack-capsul" class="selfRef">ECN_DSCP_CONTEXT_ACK Capsule Format</a>
             </figcaption></figure>
 </div>
-</section>
-</div>
-<div id="ecn-context-id-assignment-capsule">
-<section id="section-5.1.2">
-          <h4 id="name-ecn-context-id-assignment-c">
-<a href="#section-5.1.2" class="section-number selfRef">5.1.2. </a><a href="#name-ecn-context-id-assignment-c" class="section-name selfRef">ECN Context ID Assignment Capsule</a>
-          </h4>
-<p id="section-5.1.2-1">The ECN_CONTEXT_ASSIGN capsule is used to assign Context ID values to the
-ECN-zero-byte extension.<a href="#section-5.1.2-1" class="pilcrow">¶</a></p>
-<span id="name-ecn_context_assign-capsule-"></span><div id="ECN-CAP-Format">
-<figure id="figure-5">
-            <div class="alignLeft art-ascii-art art-text artwork" id="section-5.1.2-2.1">
-<pre>
-ECN_CONTEXT_ASSIGN Capsule {
-  Type (i) = TBA_2
-  Length (i),
-  ECN_CONTEXT_ASSIGNMENT (..) ...,
-}
-</pre>
-</div>
-<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
-<a href="#name-ecn_context_assign-capsule-" class="selfRef">ECN_CONTEXT_ASSIGN Capsule Format</a>
-            </figcaption></figure>
-</div>
-<p id="section-5.1.2-3">Type and Length as defined by Section 3.2 of the HTTP Capsule specification
-<span>[<a href="#RFC9297" class="cite xref">RFC9297</a>]</span>. The capsule value is the ECN_CONTEXT_ASSIGNMENT defined above in
-<a href="#ECN-CAP-CONTEXT-Format" class="auto internal xref">Figure 3</a>. Thus, the capsule value consists of zero or more
-ECN_CONTEXT_ASSIGNMENT four-tuples.<a href="#section-5.1.2-3" class="pilcrow">¶</a></p>
-</section>
-</div>
-</section>
-</div>
-<div id="ecndscp-extension">
-<section id="section-5.2">
-        <h3 id="name-ecn-dscp-extension">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-ecn-dscp-extension" class="section-name selfRef">ECN/DSCP extension</a>
-        </h3>
-<p id="section-5.2-1">This section defines the negotiation of the ECN/DSCP extension defined in
-<a href="#sec-DSCP-ECN" class="auto internal xref">Section 4</a>. It defines both an HTTP header field (DSCP-ECN-Context-ID)
-that can be included in the Extended Connect request, and a capsule.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
-<div id="http-structured-header">
-<section id="section-5.2.1">
-          <h4 id="name-http-structured-header">
-<a href="#section-5.2.1" class="section-number selfRef">5.2.1. </a><a href="#name-http-structured-header" class="section-name selfRef">HTTP Structured Header</a>
-          </h4>
-<p id="section-5.2.1-1">DSCP-ECN-Context-ID is a Structured Header Field <span>[<a href="#RFC9651" class="cite xref">RFC9651</a>]</span>. Its
-value is a List of zero or more Inner Lists, where each Inner List
-contains two Integer Items. The Integer Items MUST be non-negative, as
-they are context identifiers defined by <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>. The first Integer
-Item is the Context ID being defined, and the second Integer Item is
-the Context ID for the payload following the ECN/DSCP byte.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-2">When the header is included in an Extended Connect request, it indicates, first
-of all, support for the ECN/DSCP extension. Secondly, it may define one or more
-context ID pairs for the requestor-to-responder direction. If no context ID
-pairs are included, then this header only indicates support for the extension,
-and it may be configured using capsules.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-3">When the request includes the DSCP-ECN-Context-ID header, the responder MAY
-include this header in the response. If included, it defines the Context ID
-used in the responder-to-requestor direction<a href="#section-5.2.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-4">The following example indicates supoprt of the ECN/DSCP extension and defines
-three Context IDs: Context ID 1 combined with Context ID 4, Context ID 2
-combined with Context ID 5, and Context ID 3 combined with the default Context
-ID 0 as defined in <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, i.e., a plain UDP payload.<a href="#section-5.2.1-4" class="pilcrow">¶</a></p>
-<span id="name-example-of-ecn-context-id-he"></span><div id="DSCP-ECN-Context-ID-example">
-<figure id="figure-6">
-            <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2.1-5.1">
-<pre>
-DSCP-ECN-Conext-ID: (4,1), (5,2), (3,0)
-</pre>
-</div>
-<figcaption><a href="#figure-6" class="selfRef">Figure 6</a>:
-<a href="#name-example-of-ecn-context-id-he" class="selfRef">Example of ECN-Context-ID header</a>
-            </figcaption></figure>
-</div>
-</section>
-</div>
-<div id="dscpecn-context-id-assignment-capsule">
-<section id="section-5.2.2">
-          <h4 id="name-dscp-ecn-context-id-assignm">
-<a href="#section-5.2.2" class="section-number selfRef">5.2.2. </a><a href="#name-dscp-ecn-context-id-assignm" class="section-name selfRef">DSCP/ECN Context ID Assignment Capsule</a>
-          </h4>
-<p id="section-5.2.2-1">The DSCP_ECN_CONTEXT_ASSIGN capsule is used to assign context ID values for the
-DSCP/ECN extension.<a href="#section-5.2.2-1" class="pilcrow">¶</a></p>
-<span id="name-dscp_ecn_context_assign-cap"></span><div id="DSCP-ECN-CAP-Format">
-<figure id="figure-7">
-            <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2.2-2.1">
-<pre>
-DSCP_ECN_CONTEXT_ASSIGN Capsule {
-  Type (i) = TBA_2
-  Length (i),
-  CONTEXT ASSIGNMENT (..) ...,
-}
-</pre>
-</div>
-<figcaption><a href="#figure-7" class="selfRef">Figure 7</a>:
-<a href="#name-dscp_ecn_context_assign-cap" class="selfRef">DSCP_ECN_CONTEXT_ASSIGN Capsule Format</a>
-            </figcaption></figure>
-</div>
-<p id="section-5.2.2-3">Type and Length as defined by the HTTP Capsule specification in <span><a href="https://rfc-editor.org/rfc/rfc9297#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC9297" class="cite xref">RFC9297</a>]</span>. The capsule value is defined below.<a href="#section-5.2.2-3" class="pilcrow">¶</a></p>
-<span id="name-context-assignment-format"></span><div id="DSCP-ECN-CAP-CONTEXT-Format">
-<figure id="figure-8">
-            <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2.2-4.1">
-<pre>
-CONTEXT ASSIGNMENT {
-  ASSIGNED_CONTEXT (i),
-  NEXT_PAYLOAD_CONTEXT (i)
-}
-</pre>
-</div>
-<figcaption><a href="#figure-8" class="selfRef">Figure 8</a>:
-<a href="#name-context-assignment-format" class="selfRef">CONTEXT ASSIGNMENT Format</a>
-            </figcaption></figure>
-</div>
-<p id="section-5.2.2-5">The capsule value consists of zero or more CCONTEXT ASSIGNMENT pair values.
-Each pair consists of these two fields:<a href="#section-5.2.2-5" class="pilcrow">¶</a></p>
-<p id="section-5.2.2-6">ASSIGNED_CONTEXT: : The context ID identifying that the indicated HTTP datagram
-payload starts with the ECN/DSCP UDP Proxying Payload.<a href="#section-5.2.2-6" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.2.2-7">
-            <dt id="section-5.2.2-7.1">NEXT_PAYLOAD_CONTEXT:</dt>
-            <dd style="margin-left: 1.5em" id="section-5.2.2-7.2">
-              <p id="section-5.2.2-7.2.1">The context ID identifying the following payload in each
-HTTP datagram after the ECN/DSCP UDP Proxying Payload.<a href="#section-5.2.2-7.2.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-</dl>
-<p id="section-5.2.2-8">This capsule is sent by either endpoints to configure or extend the
-configuration of context IDs. The receiving HTTP
-endpoint MUST send back its corresponding DSCP_ECN_CONTEXT_ASSIGN capsule,
-which may be empty if the peer does not intend to provide any context IDs.<a href="#section-5.2.2-8" class="pilcrow">¶</a></p>
+<p id="section-4.1.2-6">An endpoint only send a ECN_DSCP_CONTEXT_ACK capsule if it received a
+ECN_DSCP_CONTEXT_ASSIGN capsule with the same ECN_DSCP_CONTEXT_ASSIGNMENT.
+If an endpoint receives ECN_DSCP_CONTEXT_ACK capsule for a
+ECN_DSCP_CONTEXT_ASSIGNMENT it did not attempt to register,
+that capsule is considered malformed.<a href="#section-4.1.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1691,71 +1530,64 @@ which may be empty if the peer does not intend to provide any context IDs.<a hre
 </section>
 </div>
 <div id="tunnels-and-dscp-and-ecn-marking-interactions">
-<section id="section-6">
+<section id="section-5">
       <h2 id="name-tunnels-and-dscp-and-ecn-ma">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-tunnels-and-dscp-and-ecn-ma" class="section-name selfRef">Tunnels and DSCP and ECN marking interactions</a>
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-tunnels-and-dscp-and-ecn-ma" class="section-name selfRef">Tunnels and DSCP and ECN marking interactions</a>
       </h2>
 <div id="tunnel-endpoint-marking">
-<section id="section-6.1">
+<section id="section-5.1">
         <h3 id="name-tunnel-endpoint-marking">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-tunnel-endpoint-marking" class="section-name selfRef">Tunnel Endpoint Marking</a>
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-tunnel-endpoint-marking" class="section-name selfRef">Tunnel Endpoint Marking</a>
         </h3>
-<p id="section-6.1-1">The Tunnel Endpoint, when receiving an IP/UDP packet belonging to a Connect-UDP
-request with the ECN/DSCP extension enabled, copies the six DSCP bits and the
-two ECN bits from the IP header into the DSCP and ECN fields, respectively, in
-the HTTP Datagram payload using the relevant Context ID. When using the ECN-only
-extension, the two ECN bits in the incoming IP/UDP packet are used to select the
-appropriate Context ID.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.1-2">For the ECN/DSCP extension, the Tunnel Endpoint on egress copies the DSCP and
-ECN extension field values into the IP/UDP packet it creates for this UDP
-Proxying payload. For the ECN extension, the Context ID value is used to
-determine which value to write in the outgoing IP/UDP packet’s ECN field.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
-<p id="section-6.1-3">A Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
-enable the ECN extension.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">The Tunnel Endpoint, when receiving an IP/UDP packet belonging to a Connect-UDP
+request with the ECN DSCP extension enabled, the DSCP value two ECN bits in the
+incoming IP/UDP packet are used to select the appropriate Context ID.
+If a non-yet-know DSCP value is received the endpoint can register a new Context ID assignments
+using the ECN_DSCP_CONTEXT_ASSIGN capsule and optimistically start us them.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">The Tunnel Endpoint on egress sets the DSCP that belongs to the received Context ID and
+corresponding ECN values in the IP packet it creates for this UDP
+Proxying payload.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">A Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
+enable the ECN extension.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="dscp-remarking-considerations">
-<section id="section-6.2">
+<section id="section-5.2">
         <h3 id="name-dscp-remarking-consideratio">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-dscp-remarking-consideratio" class="section-name selfRef">DSCP Remarking Considerations</a>
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-dscp-remarking-consideratio" class="section-name selfRef">DSCP Remarking Considerations</a>
         </h3>
-<p id="section-6.2-1">The tunnel may interconnect two different administrative domains that use
+<p id="section-5.2-1">The tunnel may interconnect two different administrative domains that use
 DSCP values differently. Thus, the endpoints likely need to perform remarking
 of DSCP field values, similar to what an inter-domain router would. Depending on
 use cases and deployment, the HTTP client can be in different network domains
 with different DSCP usages. An HTTP server that, based on user identification,
 connects the HTTP client to different network domains behind it may also need
-to support multiple external domains.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">The above complications in handling DSCP make it impossible to provide a
+to support multiple external domains.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">The above complications in handling DSCP make it impossible to provide a
 standardized remarking instruction. Instead, the deployment will have to define
 whether remarking is handled by the HTTP server, the HTTP client, or both,
-considering the tunnel a specific network domain in itself.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+considering the tunnel a specific network domain in itself.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tunnel-transport-connection-ecn-interactions-and-congestion-control">
-<section id="section-6.3">
+<section id="section-5.3">
         <h3 id="name-tunnel-transport-connection">
-<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-tunnel-transport-connection" class="section-name selfRef">Tunnel Transport Connection ECN Interactions and Congestion Control</a>
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-tunnel-transport-connection" class="section-name selfRef">Tunnel Transport Connection ECN Interactions and Congestion Control</a>
         </h3>
-<p id="section-6.3-1">The primary goal of the ECN extension is to enable ECN usage between the proxy
+<p id="section-5.3-1">The primary goal of the ECN DSCP extension is to enable ECN usage between the proxy
 and the target and to have the end-to-end transport react to that ECN. However,
 different potential models exist for providing ECN interactions for the tunnel,
 i.e., between the HTTP client and server. The choice depends on how the tunnel
 is configured and what additional support has been implemented for the
-Connect-UDP protocol.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<p id="section-6.3-2">For HTTP tunnels (not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using data streams, or
-HTTP/3 with datagrams but with congestion control enabled) the tunnel will
-consist of one or possibly several chained congestion-controlled transport
-connections. In this case, ECN may be enabled independently on each underlying
-transport connection. However, in this scenario, it is not possible to have a
-one-to-one correspondence between lower-layer ECN markings and tunneled HTTP
-datagrams, nor to avoid reacting at both the tunnel-transport layer and the
-end-to-end layer. Instead, the only practical choice is to have each HTTP-layer
-hop run an ECN-marking AQM governed by its transport connection, which marks
-the ECN field in the HTTP datagram or drops the datagram when a queue builds.
-In other words, each HTTP transport connection is treated as a single IP link
-in the end-to-end chain.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
-<p id="section-6.3-3">For tunnels using HTTP/3 with datagrams, where the QUIC connection disables
+Connect-UDP protocol.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-2">The default deployment would be to use congestion controlled transport protocols
+between the HTTP endpoints or proxies for the tunneled ECN enabled packets. This
+include all HTTP versions before HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, as well as HTTP/3 sending
+packets over reliable streams as well as over congestion controlled datagrams.
+In this deployment on the ingress to each congestion controlled transport an
+Active Queue Management (AQM) is recommend that can mark the tunneled packet's
+ECN field (or drop them) in case there is sufficient queue build up.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3-3">For tunnels using HTTP/3 with datagrams, where the QUIC connection disables
 congestion control on packets containing HTTP datagrams as discussed in Section
 6 of <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, the ECN marking on tunneled packets can be propagated between
 the IP packet of the transport connection and the end-to-end packet. This
@@ -1763,15 +1595,15 @@ represents a specific implementation of IP-in-IP tunnels with tightly coupled
 shim headers as discussed in <span>[<a href="#RFC9601" class="cite xref">RFC9601</a>]</span>. It is implemented as
 Feed-Forward-and-Up as discussed in <span>[<a href="#RFC9599" class="cite xref">RFC9599</a>]</span>, and MUST use the normal mode on
 tunnel ingress and follow the specified default behavior on egress as defined in
-<span>[<a href="#RFC6040" class="cite xref">RFC6040</a>]</span>.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC6040" class="cite xref">RFC6040</a>]</span>.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tunnel-transport-connection-dscp-interactions">
-<section id="section-6.4">
+<section id="section-5.4">
         <h3 id="name-tunnel-transport-connection-">
-<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-tunnel-transport-connection-" class="section-name selfRef">Tunnel Transport Connection DSCP Interactions</a>
+<a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-tunnel-transport-connection-" class="section-name selfRef">Tunnel Transport Connection DSCP Interactions</a>
         </h3>
-<p id="section-6.4-1">For HTTP tunnels not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using data streams, or
+<p id="section-5.4-1">For HTTP tunnels not using HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>, HTTP/3 using reliable streams, or
 HTTP/3 with datagrams but without disabling congestion control, the tunnel will
 consist of one or possibly several chained congestion-controlled transport
 connections. These transport connections can use only a single DSCP code point
@@ -1782,8 +1614,8 @@ suitable DSCP value. However, if the QUIC multipath extension
 <span>[<a href="#I-D.ietf-quic-multipath" class="cite xref">I-D.ietf-quic-multipath</a>]</span> is used, each path can have a different DSCP value.
 In this latter case, packets with different DSCP values can be mapped to
 different paths with the appropriate network treatment as indicated by their
-DSCP values.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
-<p id="section-6.4-2">For tunnels using HTTP/3 with datagrams and where the QUIC connection disables
+DSCP values.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+<p id="section-5.4-2">For tunnels using HTTP/3 with datagrams and where the QUIC connection disables
 congestion control on packets containing HTTP datagrams, as discussed in
 Section 6 of <span>[<a href="#RFC9298" class="cite xref">RFC9298</a>]</span>, the QUIC packets can be marked using the most
 suitable DSCP value based on the encapsulated packet. In cases where the tunnel
@@ -1791,154 +1623,161 @@ connection is sent into a different network domain than the one on which the
 tunneled packet was received, a suitable remapping must occur for the domain to
 which the tunnel packet will be sent. The HTTP tunnel MUST NOT coalesce
 different tunneled payloads that are not mapped to the same DSCP in a single
-QUIC packet.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
+QUIC packet.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="quic-aware-forwarding">
-<section id="section-6.5">
+<section id="section-5.5">
         <h3 id="name-quic-aware-forwarding">
-<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-quic-aware-forwarding" class="section-name selfRef">QUIC Aware Forwarding</a>
+<a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-quic-aware-forwarding" class="section-name selfRef">QUIC Aware Forwarding</a>
         </h3>
-<p id="section-6.5-1">An HTTP endpoint that supports this extension and QUIC Aware Forwarding
+<p id="section-5.5-1">An HTTP endpoint that supports this extension and QUIC Aware Forwarding
 <span>[<a href="#I-D.ietf-masque-quic-proxy" class="cite xref">I-D.ietf-masque-quic-proxy</a>]</span> MUST preserve ECN markings on forwarded packets
 in both directions to ensure end-to-end ECN functionality. Using this extension
 in combination with QUIC Aware Forwarding, rather than relying solely on the
 latter, also ensures that ECN black holes do not occur, for example, on
 long-header packets or packets sent before the QUIC Aware Forwarding path is
 established for short-header packets. Thus, supporting both provides a
-consistent ECN experience.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
+consistent ECN experience.<a href="#section-5.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-7">
+<section id="section-6">
       <h2 id="name-iana-considerations">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
 <div id="http-field-names">
-<section id="section-7.1">
+<section id="section-6.1">
         <h3 id="name-http-field-names">
-<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-http-field-names" class="section-name selfRef">HTTP Field Names</a>
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-http-field-names" class="section-name selfRef">HTTP Field Names</a>
         </h3>
-<p id="section-7.1-1">IANA is request to register two new permanent Field name in the
+<p id="section-6.1-1">IANA is requested to register one new permanent Field name in the
 Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
 writing residing at:
-https://www.iana.org/assignments/http-fields/http-fields.xhtml).<a href="#section-7.1-1" class="pilcrow">¶</a></p>
-<div id="ecn-context-id">
-<section id="section-7.1.1">
-          <h4 id="name-ecn-context-id">
-<a href="#section-7.1.1" class="section-number selfRef">7.1.1. </a><a href="#name-ecn-context-id" class="section-name selfRef">ECN-Context-ID</a>
-          </h4>
-<p id="section-7.1.1-1">Field Name: ECN-Context-ID<a href="#section-7.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-7.1.1-2">Status: Permanent<a href="#section-7.1.1-2" class="pilcrow">¶</a></p>
-<p id="section-7.1.1-3">Structured Type: List<a href="#section-7.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-7.1.1-4">Reference: [RFC-TO-BE]<a href="#section-7.1.1-4" class="pilcrow">¶</a></p>
-</section>
-</div>
+https://www.iana.org/assignments/http-fields/http-fields.xhtml).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <div id="dscp-ecn-context-id">
-<section id="section-7.1.2">
+<section id="section-6.1.1">
           <h4 id="name-dscp-ecn-context-id">
-<a href="#section-7.1.2" class="section-number selfRef">7.1.2. </a><a href="#name-dscp-ecn-context-id" class="section-name selfRef">DSCP-ECN-Context-ID</a>
+<a href="#section-6.1.1" class="section-number selfRef">6.1.1. </a><a href="#name-dscp-ecn-context-id" class="section-name selfRef">DSCP-ECN-Context-ID</a>
           </h4>
-<p id="section-7.1.2-1">Field Name: DSCP-ECN-Context-ID<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.1.2-2">Status: Permanent<a href="#section-7.1.2-2" class="pilcrow">¶</a></p>
-<p id="section-7.1.2-3">Structured Type: List<a href="#section-7.1.2-3" class="pilcrow">¶</a></p>
-<p id="section-7.1.2-4">Reference: [RFC-TO-BE]<a href="#section-7.1.2-4" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6.1.1-1">
+            <dt id="section-6.1.1-1.1">Field Name:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.1.1-1.2">
+              <p id="section-6.1.1-1.2.1">DSCP-ECN-Context-ID<a href="#section-6.1.1-1.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-6.1.1-1.3">Status:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.1.1-1.4">
+              <p id="section-6.1.1-1.4.1">Permanent<a href="#section-6.1.1-1.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-6.1.1-1.5">Structured Type:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.1.1-1.6">
+              <p id="section-6.1.1-1.6.1">List<a href="#section-6.1.1-1.6.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-6.1.1-1.7">Reference:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.1.1-1.8">
+              <p id="section-6.1.1-1.8.1">RFC-TO-BE<a href="#section-6.1.1-1.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
 </section>
 </div>
 </section>
 </div>
 <div id="http-capsule-type">
-<section id="section-7.2">
+<section id="section-6.2">
         <h3 id="name-http-capsule-type">
-<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-http-capsule-type" class="section-name selfRef">HTTP Capsule Type</a>
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-http-capsule-type" class="section-name selfRef">HTTP Capsule Type</a>
         </h3>
-<p id="section-7.2-1">IANA is reqeusted ot register two new HTTP Capsule Types in the
-permanent range (0x00-0x3f).<a href="#section-7.2-1" class="pilcrow">¶</a></p>
-<div id="ecncontextassign">
-<section id="section-7.2.1">
-          <h4 id="name-ecn_context_assign">
-<a href="#section-7.2.1" class="section-number selfRef">7.2.1. </a><a href="#name-ecn_context_assign" class="section-name selfRef">ECN_CONTEXT_ASSIGN</a>
+<p id="section-6.2-1">IANA is requested ot register two new HTTP Capsule Types in the
+permanent range (0x00-0x3f).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<div id="ecndscpcontextassign">
+<section id="section-6.2.1">
+          <h4 id="name-ecn_dscp_context_assign">
+<a href="#section-6.2.1" class="section-number selfRef">6.2.1. </a><a href="#name-ecn_dscp_context_assign" class="section-name selfRef">ECN_DSCP_CONTEXT_ASSIGN</a>
           </h4>
-<span class="break"></span><dl class="dlParallel" id="section-7.2.1-1">
-            <dt id="section-7.2.1-1.1">Value:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.2">
-              <p id="section-7.2.1-1.2.1">TBA_1<a href="#section-7.2.1-1.2.1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6.2.1-1">
+            <dt id="section-6.2.1-1.1">Value:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.2">
+              <p id="section-6.2.1-1.2.1">TBA_1<a href="#section-6.2.1-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.1-1.3">Capsule Type:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.4">
-              <p id="section-7.2.1-1.4.1">ECN_CONTEXT_ASSIGN<a href="#section-7.2.1-1.4.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.1-1.3">Capsule Type:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.4">
+              <p id="section-6.2.1-1.4.1">ECN_CONTEXT_ASSIGN<a href="#section-6.2.1-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.1-1.5">Status:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.6">
-              <p id="section-7.2.1-1.6.1">permanent<a href="#section-7.2.1-1.6.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.1-1.5">Status:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.6">
+              <p id="section-6.2.1-1.6.1">permanent<a href="#section-6.2.1-1.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.1-1.7">Reference:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.8">
-              <p id="section-7.2.1-1.8.1">RFC-TO-BE<a href="#section-7.2.1-1.8.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.1-1.7">Reference:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.8">
+              <p id="section-6.2.1-1.8.1">RFC-TO-BE<a href="#section-6.2.1-1.8.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.1-1.9">Change Controller:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.10">
-              <p id="section-7.2.1-1.10.1">IETF<a href="#section-7.2.1-1.10.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.1-1.9">Change Controller:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.10">
+              <p id="section-6.2.1-1.10.1">IETF<a href="#section-6.2.1-1.10.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.1-1.11">Contact:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.12">
-              <p id="section-7.2.1-1.12.1">MASQUE Working Group masque@ietf.org<a href="#section-7.2.1-1.12.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.1-1.11">Contact:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.12">
+              <p id="section-6.2.1-1.12.1">MASQUE Working Group masque@ietf.org<a href="#section-6.2.1-1.12.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.1-1.13">Notes:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.1-1.14">
-              <p id="section-7.2.1-1.14.1">None<a href="#section-7.2.1-1.14.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.1-1.13">Notes:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.1-1.14">
+              <p id="section-6.2.1-1.14.1">None<a href="#section-6.2.1-1.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
 </section>
 </div>
-<div id="dscpecncontextassign">
-<section id="section-7.2.2">
-          <h4 id="name-dscp_ecn_context_assign">
-<a href="#section-7.2.2" class="section-number selfRef">7.2.2. </a><a href="#name-dscp_ecn_context_assign" class="section-name selfRef">DSCP_ECN_CONTEXT_ASSIGN</a>
+<div id="dscpecncontextack">
+<section id="section-6.2.2">
+          <h4 id="name-dscp_ecn_context_ack">
+<a href="#section-6.2.2" class="section-number selfRef">6.2.2. </a><a href="#name-dscp_ecn_context_ack" class="section-name selfRef">DSCP_ECN_CONTEXT_ACK</a>
           </h4>
-<span class="break"></span><dl class="dlParallel" id="section-7.2.2-1">
-            <dt id="section-7.2.2-1.1">Value:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.2">
-              <p id="section-7.2.2-1.2.1">TBA_2<a href="#section-7.2.2-1.2.1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6.2.2-1">
+            <dt id="section-6.2.2-1.1">Value:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.2">
+              <p id="section-6.2.2-1.2.1">TBA_2<a href="#section-6.2.2-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.2-1.3">Capsule Type:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.4">
-              <p id="section-7.2.2-1.4.1">DSCP_ECN_CONTEXT_ASSIGN<a href="#section-7.2.2-1.4.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.2-1.3">Capsule Type:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.4">
+              <p id="section-6.2.2-1.4.1">DSCP_ECN_CONTEXT_ACK<a href="#section-6.2.2-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.2-1.5">Status:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.6">
-              <p id="section-7.2.2-1.6.1">permanent<a href="#section-7.2.2-1.6.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.2-1.5">Status:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.6">
+              <p id="section-6.2.2-1.6.1">permanent<a href="#section-6.2.2-1.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.2-1.7">Reference:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.8">
-              <p id="section-7.2.2-1.8.1">RFC-TO-BE<a href="#section-7.2.2-1.8.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.2-1.7">Reference:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.8">
+              <p id="section-6.2.2-1.8.1">RFC-TO-BE<a href="#section-6.2.2-1.8.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.2-1.9">Change Controller:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.10">
-              <p id="section-7.2.2-1.10.1">IETF<a href="#section-7.2.2-1.10.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.2-1.9">Change Controller:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.10">
+              <p id="section-6.2.2-1.10.1">IETF<a href="#section-6.2.2-1.10.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.2-1.11">Contact:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.12">
-              <p id="section-7.2.2-1.12.1">MASQUE Working Group masque@ietf.org<a href="#section-7.2.2-1.12.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.2-1.11">Contact:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.12">
+              <p id="section-6.2.2-1.12.1">MASQUE Working Group masque@ietf.org<a href="#section-6.2.2-1.12.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-7.2.2-1.13">Notes:</dt>
-            <dd style="margin-left: 1.5em" id="section-7.2.2-1.14">
-              <p id="section-7.2.2-1.14.1">None<a href="#section-7.2.2-1.14.1" class="pilcrow">¶</a></p>
+<dt id="section-6.2.2-1.13">Notes:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.2.2-1.14">
+              <p id="section-6.2.2-1.14.1">None<a href="#section-6.2.2-1.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -1946,31 +1785,22 @@ permanent range (0x00-0x3f).<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 </div>
 </section>
 </div>
-</section>
-</div>
-<div id="acknowledgments">
-<section id="section-8">
-      <h2 id="name-acknowledgments">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
-      </h2>
-<p id="section-8-1">This draft takes insperation from David Schinazi's An ECN Extension to
-Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xref">I-D.schinazi-masque-connect-udp-ecn</a>]</span>.<a href="#section-8-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-combined-references">
-<section id="section-9">
+<section id="section-7">
       <h2 id="name-references">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-9.1">
+<section id="section-7.1">
         <h3 id="name-normative-references">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="I-D.ietf-masque-quic-proxy">[I-D.ietf-masque-quic-proxy]</dt>
         <dd>
-<span class="refAuthor">Pauly, T.</span>, <span class="refAuthor">Rosenberg, E.</span>, and <span class="refAuthor">D. Schinazi</span>, <span class="refTitle">"QUIC-Aware Proxying Using HTTP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-masque-quic-proxy-07</span>, <time datetime="2025-10-08" class="refDate">8 October 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-masque-quic-proxy-07">https://datatracker.ietf.org/doc/html/draft-ietf-masque-quic-proxy-07</a>&gt;</span>. </dd>
+<span class="refAuthor">Pauly, T.</span>, <span class="refAuthor">Rosenberg, E.</span>, and <span class="refAuthor">D. Schinazi</span>, <span class="refTitle">"QUIC-Aware Proxying Using HTTP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-masque-quic-proxy-08</span>, <time datetime="2026-03-02" class="refDate">2 March 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-masque-quic-proxy-08">https://datatracker.ietf.org/doc/html/draft-ietf-masque-quic-proxy-08</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
@@ -1979,10 +1809,6 @@ Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xr
 <dt id="RFC2474">[RFC2474]</dt>
         <dd>
 <span class="refAuthor">Nichols, K.</span>, <span class="refAuthor">Blake, S.</span>, <span class="refAuthor">Baker, F.</span>, and <span class="refAuthor">D. Black</span>, <span class="refTitle">"Definition of the Differentiated Services Field (DS Field) in the IPv4 and IPv6 Headers"</span>, <span class="seriesInfo">RFC 2474</span>, <span class="seriesInfo">DOI 10.17487/RFC2474</span>, <time datetime="1998-12" class="refDate">December 1998</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2474">https://www.rfc-editor.org/rfc/rfc2474</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC2475">[RFC2475]</dt>
-        <dd>
-<span class="refAuthor">Blake, S.</span>, <span class="refAuthor">Black, D.</span>, <span class="refAuthor">Carlson, M.</span>, <span class="refAuthor">Davies, E.</span>, <span class="refAuthor">Wang, Z.</span>, and <span class="refAuthor">W. Weiss</span>, <span class="refTitle">"An Architecture for Differentiated Services"</span>, <span class="seriesInfo">RFC 2475</span>, <span class="seriesInfo">DOI 10.17487/RFC2475</span>, <time datetime="1998-12" class="refDate">December 1998</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2475">https://www.rfc-editor.org/rfc/rfc2475</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC3168">[RFC3168]</dt>
         <dd>
@@ -2012,9 +1838,9 @@ Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xr
         <dd>
 <span class="refAuthor">Schinazi, D.</span>, <span class="refTitle">"Proxying UDP in HTTP"</span>, <span class="seriesInfo">RFC 9298</span>, <span class="seriesInfo">DOI 10.17487/RFC9298</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9298">https://www.rfc-editor.org/rfc/rfc9298</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC9330">[RFC9330]</dt>
+<dt id="RFC9331">[RFC9331]</dt>
         <dd>
-<span class="refAuthor">Briscoe, B., Ed.</span>, <span class="refAuthor">De Schepper, K.</span>, <span class="refAuthor">Bagnulo, M.</span>, and <span class="refAuthor">G. White</span>, <span class="refTitle">"Low Latency, Low Loss, and Scalable Throughput (L4S) Internet Service: Architecture"</span>, <span class="seriesInfo">RFC 9330</span>, <span class="seriesInfo">DOI 10.17487/RFC9330</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9330">https://www.rfc-editor.org/rfc/rfc9330</a>&gt;</span>. </dd>
+<span class="refAuthor">De Schepper, K.</span> and <span class="refAuthor">B. Briscoe, Ed.</span>, <span class="refTitle">"The Explicit Congestion Notification (ECN) Protocol for Low Latency, Low Loss, and Scalable Throughput (L4S)"</span>, <span class="seriesInfo">RFC 9331</span>, <span class="seriesInfo">DOI 10.17487/RFC9331</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9331">https://www.rfc-editor.org/rfc/rfc9331</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9599">[RFC9599]</dt>
         <dd>
@@ -2032,22 +1858,30 @@ Connect-UDP <span>[<a href="#I-D.schinazi-masque-connect-udp-ecn" class="cite xr
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-9.2">
+<section id="section-7.2">
         <h3 id="name-informative-references">
-<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="I-D.ietf-quic-multipath">[I-D.ietf-quic-multipath]</dt>
         <dd>
-<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">Ma, Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-16</span>, <time datetime="2025-08-21" class="refDate">21 August 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-16">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-16</a>&gt;</span>. </dd>
+<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">Ma, Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Managing multiple paths for a QUIC connection"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-21</span>, <time datetime="2026-03-17" class="refDate">17 March 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-21">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-21</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.schinazi-masque-connect-udp-ecn">[I-D.schinazi-masque-connect-udp-ecn]</dt>
         <dd>
 <span class="refAuthor">Schinazi, D.</span>, <span class="refTitle">"An ECN Extension to CONNECT-UDP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-schinazi-masque-connect-udp-ecn-02</span>, <time datetime="2022-03-28" class="refDate">28 March 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-schinazi-masque-connect-udp-ecn-02">https://datatracker.ietf.org/doc/html/draft-schinazi-masque-connect-udp-ecn-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC2475">[RFC2475]</dt>
+        <dd>
+<span class="refAuthor">Blake, S.</span>, <span class="refAuthor">Black, D.</span>, <span class="refAuthor">Carlson, M.</span>, <span class="refAuthor">Davies, E.</span>, <span class="refAuthor">Wang, Z.</span>, and <span class="refAuthor">W. Weiss</span>, <span class="refTitle">"An Architecture for Differentiated Services"</span>, <span class="seriesInfo">RFC 2475</span>, <span class="seriesInfo">DOI 10.17487/RFC2475</span>, <time datetime="1998-12" class="refDate">December 1998</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2475">https://www.rfc-editor.org/rfc/rfc2475</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8311">[RFC8311]</dt>
         <dd>
 <span class="refAuthor">Black, D.</span>, <span class="refTitle">"Relaxing Restrictions on Explicit Congestion Notification (ECN) Experimentation"</span>, <span class="seriesInfo">RFC 8311</span>, <span class="seriesInfo">DOI 10.17487/RFC8311</span>, <time datetime="2018-01" class="refDate">January 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8311">https://www.rfc-editor.org/rfc/rfc8311</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9330">[RFC9330]</dt>
+        <dd>
+<span class="refAuthor">Briscoe, B., Ed.</span>, <span class="refAuthor">De Schepper, K.</span>, <span class="refAuthor">Bagnulo, M.</span>, and <span class="refAuthor">G. White</span>, <span class="refTitle">"Low Latency, Low Loss, and Scalable Throughput (L4S) Internet Service: Architecture"</span>, <span class="seriesInfo">RFC 9330</span>, <span class="seriesInfo">DOI 10.17487/RFC9330</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9330">https://www.rfc-editor.org/rfc/rfc9330</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9484">[RFC9484]</dt>
       <dd>
