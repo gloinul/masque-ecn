@@ -1,5 +1,5 @@
 ---
-docname: draft-westerlund-masque-connect-udp-ecn-dscp-latest
+docname: draft-ietf-masque-connect-udp-ecn-dscp-latest
 title: ECN and DSCP support for HTTPS's Connect-UDP
 v: 3
 submissiontype: IETF
