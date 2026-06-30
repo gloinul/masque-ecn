@@ -170,6 +170,7 @@ following format:
 ~~~ ascii-art
 ECN_DSCP_CONTEXT_ASSIGNMENT {
   DSCP_VALUE (6),
+  Reserved(2),
   NOT_ECN_CONTEXT (i)
   ECT_1_CONTEXT (i),
   ECT_0_CONTEXT (i),
@@ -180,6 +181,9 @@ ECN_DSCP_CONTEXT_ASSIGNMENT {
 
 DSCP_VALUE:
 : The DSCP value in the IP valid for the following Context IDs.
+
+Reserved:
+: Reserving two bits to achieve byte alignment for the DSCP_VALUE.
 
 NOT_ECN_CONTEXT:
 : The Context ID used to indicate the payload was marked as Not-ECN-Capable.
@@ -221,6 +225,12 @@ Note that the default context ID of 0 is (re-)used to indicate the default ECN v
 ECN-DSCP-Context-ID: (46,8,10,12,14), (0,0,2,4,6)
 ~~~
 {: #ECN-DSCP-Context-ID-example title="Example of ECN-DSCP-Context-ID header"}
+
+A well formed ECDN-DSCP-Context-ID header field SHALL NOT contain the
+same context ID in multiple inner lists or multiple positions within
+the same list. The same DSCP value SHALL NOT be mapped to
+multiple sets of context IDs from the same endpoint.
+
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
@@ -270,12 +280,15 @@ incoming IP/UDP packet are used to select the appropriate Context ID.
 If a not-yet-known DSCP value is received, the endpoint can register new Context ID assignments
 using the ECN_DSCP_CONTEXT_ASSIGN capsule and optimistically start using them.
 
-The Tunnel Endpoint on egress sets the DSCP that belongs to the received Context ID and
-corresponding ECN values in the IP packet it creates for this UDP
-Proxying payload.
+The Tunnel Endpoint on egress sets the DSCP that belongs to the
+received Context ID and corresponding ECN values in the IP packet it
+creates for this UDP Proxying payload. If the tunnel endpoint receives
+an unknown Context ID the endpoint MAY drop the packet or alternative buffer
+it for a limited time to enable the ECN_DSCP_CONTEXT_ASSIGN capsule
+to be received and processed.
 
-A Tunnel endpoint which is unable to read or set the ECN Field SHALL NOT
-enable the ECN extension.
+A Tunnel endpoint which is unable to read or set the ECN Field SHALL
+NOT enable the ECN extension.
 
 
 ## DSCP Remarking Considerations
