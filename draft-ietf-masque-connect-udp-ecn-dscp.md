@@ -80,7 +80,7 @@ address and UDP port. QUIC and Real-time transport protocol (RTP) are examples
 of transport protocols that use UDP and support Explicit Congestion
 Notification (ECN) and provide the necessary feedback. This document specifies
 how ECN and DSCP can be supported through an extension to the Connect-UDP
-protocol for HTTP without per-packet byte overhead, soley using Context IDs.
+protocol for HTTP without per-packet byte overhead, solely using Context IDs.
 
 
 --- middle
@@ -98,17 +98,17 @@ Diffserv {{RFC2475}} enables differential network treatment of packets.
 Connect-UDP, as currently defined, lacks support for carrying the DSCP
 field {{RFC2474}} through the tunnel.
 
-This document specifies a Connect-UDP extensions that enable end-to-end ECN
+This document specifies Connect-UDP extensions that enable end-to-end ECN
 and DSCP for proxied connections: the zero-bytes extension adds no
 per-packet overhead by encoding the ECN and DSCP values directly into Context IDs.
-This document specifies negotiation to provide an intial set of Context IDs
+This document specifies negotiation to provide an initial set of Context IDs
 and capsules for dynamic updates.
 
 An alternative to this extension is Connect-IP {{RFC9484}}; however, it carries
 a full IP header between the HTTP client and server, resulting in significantly
 more overhead than this extension.
 
-This extension is defined such that they allow clients to optimistically start
+This extension is defined such that it allows clients to optimistically start
 sending UDP packets in HTTP Datagrams, i.e. before receiving the response to its
 UDP proxying request, as described in {{Section 5 of RFC9298}}.
 
@@ -133,12 +133,12 @@ No new Context ID value is defined to represent Not-ECT, since using a Context
 ID without this extension would, by default, imply Not-ECT. Additionally,
 Context IDs are defined to represent the combination of an ECN value other than
 Not-ECT and the DSCP values. If an application uses more
-DCSP values than just zero, additional Context IDs must be defined.
+DSCP values than just zero, additional Context IDs must be defined.
 
 This extension results in four times as many Context IDs within a single
-Connect-UDP stream for each DSCP values used. We expect that this is acceptable in most cases, as a total
+Connect-UDP stream for each DSCP value used. We expect that this is acceptable in most cases, as a total
 of 31 client initiated Context IDs can be encoded in a single byte, thus resulting in no packet
-expansion for applications that use upto 8 DSCP values.
+expansion for applications that use up to 8 DSCP values.
 
 An endpoint enabling this extension MUST define all three ECN values, even if
 the ECN-enabled application expects that only one ECT value (and CE) is used.
@@ -178,7 +178,7 @@ ECN_DSCP_CONTEXT_ASSIGNMENT {
 ~~~
 {: #ECN-DSCP-Format title="ECN DSCP CONTEXT ASSIGNMENT Format"}
 
-DCSP_VALUE:
+DSCP_VALUE:
 : The DSCP value in the IP valid for the following Context IDs.
 
 NOT_ECN_CONTEXT:
@@ -210,7 +210,7 @@ capsules.
 
 When the request includes the ECN-DSCP-Context-ID header, the responder MAY include
 this header in the response. If included with one or more 5-item inner lists, it
-defines Context ID defined by the server, usable in either direction.
+defines Context IDs defined by the server, usable in either direction.
 
 The following example indicates support for this extension and defines
 two sets of client initiated Context IDs: ID= 10, 12, 14, 16 (Not-ECN-Capable, ECT(1), ECT(0), CE)
@@ -218,14 +218,14 @@ combined with DSCP 46 for Expedited Forwarding (EF): 46 ; and ID=0, 4, 6, 8 comb
 Note that the default context ID of 0 is (re-)used to indicate the default ECN value of Not-ECN Capable.
 
 ~~~ ascii-art
-ECN-Context-ID: (46,8,10,12,14), (0,0,2,4,6 )
+ECN-DSCP-Context-ID: (46,8,10,12,14), (0,0,2,4,6)
 ~~~
 {: #ECN-DSCP-Context-ID-example title="Example of ECN-DSCP-Context-ID header"}
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
 The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
-after negotiation and initial assignment in the HTPP header.
+after negotiation and initial assignment in the HTTP header.
 
 ~~~ ascii-art
 ECN_DSCP_CONTEXT_ASSIGN Capsule {
@@ -241,7 +241,7 @@ Type and Length as defined by Section 3.2 of the HTTP Capsule specification
 {{ECN-DSCP-Format}}. Thus, the capsule value consists of zero or more
 ECN_DSCP_CONTEXT_ASSIGNMENT five-tuples.
 
-The ECN_DSCP_CONTEXT_ACK capsule confirms the registration of a context IDs that were received via a
+The ECN_DSCP_CONTEXT_ACK capsule confirms the registration of Context IDs that were received via an
 ECN_DSCP_CONTEXT_ASSIGN capsule.
 
 ~~~ ascii-art
@@ -253,9 +253,9 @@ ECN_DSCP_CONTEXT_ACK Capsule {
 ~~~
 {: #CAP-Format-Ack title="ECN_DSCP_CONTEXT_ACK Capsule Format"}
 
-An endpoint only send a ECN_DSCP_CONTEXT_ACK capsule if it received a
+An endpoint MUST only send an ECN_DSCP_CONTEXT_ACK capsule if it received an
 ECN_DSCP_CONTEXT_ASSIGN capsule with the same ECN_DSCP_CONTEXT_ASSIGNMENT.
-If an endpoint receives ECN_DSCP_CONTEXT_ACK capsule for a
+If an endpoint receives an ECN_DSCP_CONTEXT_ACK capsule for an
 ECN_DSCP_CONTEXT_ASSIGNMENT it did not attempt to register,
 that capsule is considered malformed.
 
@@ -264,11 +264,11 @@ that capsule is considered malformed.
 
 ## Tunnel Endpoint Marking
 
-The Tunnel Endpoint, when receiving an IP/UDP packet belonging to a Connect-UDP
-request with the ECN DSCP extension enabled, the DSCP value two ECN bits in the
+When a Tunnel Endpoint receives an IP/UDP packet belonging to a Connect-UDP
+request with the ECN DSCP extension enabled, the DSCP value and two ECN bits in the
 incoming IP/UDP packet are used to select the appropriate Context ID.
-If a non-yet-know DSCP value is received the endpoint can register a new Context ID assignments
-using the ECN_DSCP_CONTEXT_ASSIGN capsule and optimistically start us them.
+If a not-yet-known DSCP value is received, the endpoint can register new Context ID assignments
+using the ECN_DSCP_CONTEXT_ASSIGN capsule and optimistically start using them.
 
 The Tunnel Endpoint on egress sets the DSCP that belongs to the received Context ID and
 corresponding ECN values in the IP packet it creates for this UDP
@@ -305,10 +305,10 @@ Connect-UDP protocol.
 
 The default deployment would be to use congestion controlled transport protocols
 between the HTTP endpoints or proxies for the tunneled ECN enabled packets. This
-include all HTTP versions before HTTP/3 {{RFC9114}}, as well as HTTP/3 sending
+includes all HTTP versions before HTTP/3 {{RFC9114}}, as well as HTTP/3 sending
 packets over reliable streams as well as over congestion controlled datagrams.
 In this deployment on the ingress to each congestion controlled transport an
-Active Queue Management (AQM) is recommend that can mark the tunneled packet's
+Active Queue Management (AQM) is recommended that can mark the tunneled packet's
 ECN field (or drop them) in case there is sufficient queue build up.
 
 For tunnels using HTTP/3 with datagrams, where the QUIC connection disables
@@ -367,10 +367,10 @@ Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
 writing residing at:
 https://www.iana.org/assignments/http-fields/http-fields.xhtml).
 
-### DSCP-ECN-Context-ID
+### ECN-DSCP-Context-ID
 
 Field Name:
-: DSCP-ECN-Context-ID
+: ECN-DSCP-Context-ID
 
 Status:
 : Permanent
@@ -384,7 +384,7 @@ Reference:
 
 ## HTTP Capsule Type
 
-IANA is requested ot register two new HTTP Capsule Types in the
+IANA is requested to register two new HTTP Capsule Types in the
 permanent range (0x00-0x3f).
 
 ### ECN_DSCP_CONTEXT_ASSIGN
@@ -393,7 +393,7 @@ Value:
 : TBA_1
 
 Capsule Type:
-: ECN_CONTEXT_ASSIGN
+: ECN_DSCP_CONTEXT_ASSIGN
 
 Status:
 : permanent
@@ -411,13 +411,13 @@ Notes:
 : None
 
 
-### DSCP_ECN_CONTEXT_ACK
+### ECN_DSCP_CONTEXT_ACK
 
 Value:
 : TBA_2
 
 Capsule Type:
-: DSCP_ECN_CONTEXT_ACK
+: ECN_DSCP_CONTEXT_ACK
 
 Status:
 : permanent
