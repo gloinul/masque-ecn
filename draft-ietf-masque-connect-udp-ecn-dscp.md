@@ -210,7 +210,7 @@ capsules.
 
 When the request includes the ECN-DSCP-Context-ID header, the responder MAY include
 this header in the response. If included with one or more 5-item inner lists, it
-defines Context ID defined by the server, usable in either direction.
+defines Context ID defined by the server, usable in the responder-to-requestor direction.
 
 The following example indicates support for this extension and defines
 two sets of client initiated Context IDs: ID= 10, 12, 14, 16 (Not-ECN-Capable, ECT(1), ECT(0), CE)
@@ -224,8 +224,15 @@ ECN-Context-ID: (46,8,10,12,14), (0,0,2,4,6 )
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
-The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
-after negotiation and initial assignment in the HTPP header.
+The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional
+Context ID values after negotiation and initial assignment in the HTPP
+header. It may also be used to update already assigned context
+values. When updating assigned Context IDs values the sender MUST
+ensure a high confidence that no packet encapsulated using the Context
+IDs to be reassigned is in flight. Secondly it MUST NOT start using
+the reassigned Context IDs before the ECN_DSCP_CONTEXT_ACK with the
+ECN_DSCP_CONTEXT_ASSIGNMENT performing the reassignment has been
+received.
 
 ~~~ ascii-art
 ECN_DSCP_CONTEXT_ASSIGN Capsule {
