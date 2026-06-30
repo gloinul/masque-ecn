@@ -358,6 +358,42 @@ long-header packets or packets sent before the QUIC Aware Forwarding path is
 established for short-header packets. Thus, supporting both provides a
 consistent ECN experience.
 
+# Security Considerations
+
+Connect-UDP requires HTTPS {{RFC9298}}, which ensures that Context ID
+assignments and capsule exchanges are integrity-protected, preventing on-path
+third parties from manipulating ECN and DSCP mappings.
+
+## ECN Integrity
+
+A malicious or misconfigured proxy could alter ECN codepoints when relaying
+between the tunnel and the target. End-to-end transports that use ECN SHOULD
+validate the ECN feedback path (e.g., per {{Section 13.4.2 of RFC9000}}) and
+fall back to treating the path as not ECN-capable if manipulation is detected.
+
+## DSCP Privilege
+
+A client may request Context IDs associated with DSCP values that imply
+priority treatment (e.g., Expedited Forwarding). The proxy SHOULD enforce
+authorization policies, only accepting DSCP values that the client is permitted
+to use. A proxy that blindly applies client-requested DSCP values to outgoing
+packets may allow unauthorized traffic prioritization.
+
+## Resource Consumption
+
+Each ECN_DSCP_CONTEXT_ASSIGN capsule allocates state at the receiving endpoint.
+An endpoint SHOULD limit the number of active Context ID assignments per
+Connect-UDP stream and reject assignments that exceed a configured threshold by
+treating the capsule as malformed.
+
+## ECN Tunnel Safety
+
+The ECN propagation rules in {{RFC6040}} and the safety requirements in
+{{RFC9601}} apply to this extension. In particular, if the tunnel egress does
+not support ECN propagation, the ingress MUST clear the outer ECN field to
+Not-ECT to prevent CE marks from being silently discarded, which would break
+congestion control feedback loops.
+
 # IANA Considerations
 
 ## HTTP Field Names
