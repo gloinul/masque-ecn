@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 31 December 2026                                      Smallstep
+Expires: 1 January 2027                                        Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                            29 June 2026
+                                                            30 June 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 31 December 2026.
+   This Internet-Draft will expire on 1 January 2027.
 
 Copyright Notice
 
@@ -321,7 +321,10 @@ Table of Contents
 
    The Tunnel Endpoint on egress sets the DSCP that belongs to the
    received Context ID and corresponding ECN values in the IP packet it
-   creates for this UDP Proxying payload.
+   creates for this UDP Proxying payload.  If the tunnel endpoint
+   receives an unknown Context ID the endpoint MAY drop the packet or
+   alternative buffer it for a limited time to enable the
+   ECN_DSCP_CONTEXT_ASSIGN capsule to be received and processed.
 
    A Tunnel endpoint which is unable to read or set the ECN Field SHALL
    NOT enable the ECN extension.
