@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 1 January 2027                                        Smallstep
+Expires: 4 January 2027                                        Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                            30 June 2026
+                                                             3 July 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 January 2027.
+   This Internet-Draft will expire on 4 January 2027.
 
 Copyright Notice
 
@@ -205,7 +205,7 @@ Table of Contents
 
    ECN_DSCP_CONTEXT_ASSIGNMENT {
      DSCP_VALUE (6),
-     Reserved(2),
+     Reserved (2),
      NOT_ECN_CONTEXT (i)
      ECT_1_CONTEXT (i),
      ECT_0_CONTEXT (i),
