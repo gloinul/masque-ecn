@@ -361,30 +361,28 @@ consistent ECN experience.
 # Security Considerations
 
 Connect-UDP requires HTTPS {{RFC9298}}, which ensures that Context ID
-assignments and capsule exchanges are integrity-protected, preventing on-path
-third parties from manipulating ECN and DSCP mappings.
+assignments and capsule exchanges are confidential and
+integrity-protected, preventing on-path third parties from
+manipulating ECN and DSCP mappings.
 
-## ECN Integrity
+## DSCP and ECN Fields
 
-A malicious or misconfigured proxy could alter ECN codepoints when relaying
-between the tunnel and the target. End-to-end transports that use ECN SHOULD
-validate the ECN feedback path (e.g., per {{Section 13.4.2 of RFC9000}}) and
-fall back to treating the path as not ECN-capable if manipulation is detected.
-
-## DSCP Privilege
-
-A client may request Context IDs associated with DSCP values that imply
-priority treatment (e.g., Expedited Forwarding). The proxy SHOULD enforce
-authorization policies, only accepting DSCP values that the client is permitted
-to use. A proxy that blindly applies client-requested DSCP values to outgoing
-packets may allow unauthorized traffic prioritization.
+This specification main functionality is to remap the IP header's
+fields DSCP and ECN to context-IDs between the ingress and egress of
+the MASQUE tunnel for IP/UDP flows mapped to CONNECT-UDP request. It
+also possible to apply on path marking of outer ECN fields to the
+end-to-end packet on egress. Thus, this specification does not change
+the risks with on-path manipulation of the ECN and DSCP fields.
 
 ## Resource Consumption
 
-Each ECN_DSCP_CONTEXT_ASSIGN capsule allocates state at the receiving endpoint.
-An endpoint SHOULD limit the number of active Context ID assignments per
-Connect-UDP stream and reject assignments that exceed a configured threshold by
-treating the capsule as malformed.
+Each ECN_DSCP_CONTEXT_ASSIGN capsule allocates state at the receiving
+endpoint.  However, this state is very limited as per CONNECT-UDP each
+inner assignment maps four IP TOS (DSCP+ECN) byte values to four
+context value. Normally only a small subset out of the potential 256
+different DSCP + ECN combination will be used. Malicous endpoints
+that tries to register more than 256 mappings can be dealt by closing
+the CONNECT-UDP request stream.
 
 ## ECN Tunnel Safety
 
