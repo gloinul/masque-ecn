@@ -228,9 +228,7 @@ ECN-DSCP-Context-ID: (46,8,10,12,14), (0,0,2,4,6)
 
 A well formed ECDN-DSCP-Context-ID header field SHALL NOT contain the
 same context ID in multiple inner lists or multiple positions within
-the same list. The same DSCP value SHALL NOT be mapped to
-multiple sets of context IDs from the same endpoint.
-
+the same list.
 
 ### ECN DSCP Context ID Assignment and ACK Capsules
 
