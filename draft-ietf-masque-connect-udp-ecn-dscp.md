@@ -170,7 +170,7 @@ following format:
 ~~~ ascii-art
 ECN_DSCP_CONTEXT_ASSIGNMENT {
   DSCP_VALUE (6),
-  Reserved(2),
+  Reserved (2),
   NOT_ECN_CONTEXT (i)
   ECT_1_CONTEXT (i),
   ECT_0_CONTEXT (i),
