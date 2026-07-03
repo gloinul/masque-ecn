@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 1 January 2027                                        Smallstep
+Expires: 4 January 2027                                        Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                            30 June 2026
+                                                             3 July 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 January 2027.
+   This Internet-Draft will expire on 4 January 2027.
 
 Copyright Notice
 
@@ -205,6 +205,7 @@ Table of Contents
 
    ECN_DSCP_CONTEXT_ASSIGNMENT {
      DSCP_VALUE (6),
+     Reserved (2),
      NOT_ECN_CONTEXT (i)
      ECT_1_CONTEXT (i),
      ECT_0_CONTEXT (i),
@@ -215,6 +216,9 @@ Table of Contents
 
    DSCP_VALUE:  The DSCP value in the IP valid for the following Context
       IDs.
+
+   Reserved:  Reserving two bits to achieve byte alignment for the
+      DSCP_VALUE.
 
    NOT_ECN_CONTEXT:  The Context ID used to indicate the payload was
       marked as Not-ECN-Capable.
@@ -260,6 +264,10 @@ Table of Contents
    ECN-DSCP-Context-ID: (46,8,10,12,14), (0,0,2,4,6)
 
               Figure 2: Example of ECN-DSCP-Context-ID header
+
+   A well formed ECDN-DSCP-Context-ID header field SHALL NOT contain the
+   same context ID in multiple inner lists or multiple positions within
+   the same list.
 
 4.1.2.  ECN DSCP Context ID Assignment and ACK Capsules
 
@@ -312,7 +320,10 @@ Table of Contents
 
    The Tunnel Endpoint on egress sets the DSCP that belongs to the
    received Context ID and corresponding ECN values in the IP packet it
-   creates for this UDP Proxying payload.
+   creates for this UDP Proxying payload.  If the tunnel endpoint
+   receives an unknown Context ID the endpoint MAY drop the packet or
+   alternative buffer it for a limited time to enable the
+   ECN_DSCP_CONTEXT_ASSIGN capsule to be received and processed.
 
    A Tunnel endpoint which is unable to read or set the ECN Field SHALL
    NOT enable the ECN extension.
