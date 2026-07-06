@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 4 January 2027                                        Smallstep
+Expires: 7 January 2027                                        Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                             3 July 2026
+                                                             6 July 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 January 2027.
+   This Internet-Draft will expire on 7 January 2027.
 
 Copyright Notice
 
@@ -91,15 +91,19 @@ Table of Contents
            Control
      5.4.  Tunnel Transport Connection DSCP Interactions
      5.5.  QUIC Aware Forwarding
-   6.  IANA Considerations
-     6.1.  HTTP Field Names
-       6.1.1.  ECN-DSCP-Context-ID
-     6.2.  HTTP Capsule Type
-       6.2.1.  ECN_DSCP_CONTEXT_ASSIGN
-       6.2.2.  ECN_DSCP_CONTEXT_ACK
-   7.  References
-     7.1.  Normative References
-     7.2.  Informative References
+   6.  Security Considerations
+     6.1.  DSCP and ECN Fields
+     6.2.  Resource Consumption
+     6.3.  ECN Tunnel Safety
+   7.  IANA Considerations
+     7.1.  HTTP Field Names
+       7.1.1.  ECN-DSCP-Context-ID
+     7.2.  HTTP Capsule Type
+       7.2.1.  ECN_DSCP_CONTEXT_ASSIGN
+       7.2.2.  ECN_DSCP_CONTEXT_ACK
+   8.  References
+     8.1.  Normative References
+     8.2.  Informative References
    Authors' Addresses
 
 1.  Introduction
@@ -416,16 +420,51 @@ Table of Contents
    established for short-header packets.  Thus, supporting both provides
    a consistent ECN experience.
 
-6.  IANA Considerations
+6.  Security Considerations
 
-6.1.  HTTP Field Names
+   Connect-UDP requires HTTPS [RFC9298], which ensures that Context ID
+   assignments and capsule exchanges are confidential and integrity-
+   protected, preventing on-path third parties from manipulating ECN and
+   DSCP mappings.
+
+6.1.  DSCP and ECN Fields
+
+   This specification main functionality is to remap the IP header's
+   fields DSCP and ECN to context-IDs between the ingress and egress of
+   the MASQUE tunnel for IP/UDP flows mapped to CONNECT-UDP request.  It
+   also possible to apply on path marking of outer ECN fields to the
+   end-to-end packet on egress.  Thus, this specification does not
+   change the risks with on-path manipulation of the ECN and DSCP
+   fields.
+
+6.2.  Resource Consumption
+
+   Each ECN_DSCP_CONTEXT_ASSIGN capsule allocates state at the receiving
+   endpoint.  However, this state is very limited as per CONNECT-UDP
+   each inner assignment maps four IP TOS (DSCP+ECN) byte values to four
+   context value.  Normally only a small subset out of the potential 256
+   different DSCP + ECN combination will be used.  Malicous endpoints
+   that tries to register more than 256 mappings can be dealt by closing
+   the CONNECT-UDP request stream.
+
+6.3.  ECN Tunnel Safety
+
+   The ECN propagation rules in [RFC6040] and the safety requirements in
+   [RFC9601] apply to this extension.  In particular, if the tunnel
+   egress does not support ECN propagation, the ingress MUST clear the
+   outer ECN field to Not-ECT to prevent CE marks from being silently
+   discarded, which would break congestion control feedback loops.
+
+7.  IANA Considerations
+
+7.1.  HTTP Field Names
 
    IANA is requested to register one new permanent Field name in the
    Hypertext Transfer Protocol (HTTP) Field Name Registry (At time of
    writing residing at: https://www.iana.org/assignments/http-fields/
    http-fields.xhtml).
 
-6.1.1.  ECN-DSCP-Context-ID
+7.1.1.  ECN-DSCP-Context-ID
 
    Field Name:  ECN-DSCP-Context-ID
 
@@ -435,12 +474,12 @@ Table of Contents
 
    Reference:  RFC-TO-BE
 
-6.2.  HTTP Capsule Type
+7.2.  HTTP Capsule Type
 
    IANA is requested to register two new HTTP Capsule Types in the
    permanent range (0x00-0x3f).
 
-6.2.1.  ECN_DSCP_CONTEXT_ASSIGN
+7.2.1.  ECN_DSCP_CONTEXT_ASSIGN
 
    Value:  TBA_1
 
@@ -456,7 +495,7 @@ Table of Contents
 
    Notes:  None
 
-6.2.2.  ECN_DSCP_CONTEXT_ACK
+7.2.2.  ECN_DSCP_CONTEXT_ACK
 
    Value:  TBA_2
 
@@ -472,9 +511,9 @@ Table of Contents
 
    Notes:  None
 
-7.  References
+8.  References
 
-7.1.  Normative References
+8.1.  Normative References
 
    [I-D.ietf-masque-quic-proxy]
               Pauly, T., Rosenberg, E., and D. Schinazi, "QUIC-Aware
@@ -543,7 +582,7 @@ Table of Contents
               HTTP", RFC 9651, DOI 10.17487/RFC9651, September 2024,
               <https://www.rfc-editor.org/rfc/rfc9651>.
 
-7.2.  Informative References
+8.2.  Informative References
 
    [I-D.ietf-quic-multipath]
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
