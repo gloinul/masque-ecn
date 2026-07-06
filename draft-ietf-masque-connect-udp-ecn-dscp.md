@@ -51,7 +51,6 @@ author:
 
 informative:
    RFC2475:
-   RFC8311:
    RFC9330:
    RFC9484:
    I-D.schinazi-masque-connect-udp-ecn:
@@ -479,5 +478,9 @@ Contact:
 Notes:
 : None
 
+
+# Acknowledgements
+
+The authors like to acknowledge that David Schinazi early had another proposal for adding ECN to Connect-UDP {{I-D.schinazi-masque-connect-udp-ecn}}.
 
 --- back
