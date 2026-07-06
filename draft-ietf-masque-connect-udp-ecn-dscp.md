@@ -369,6 +369,40 @@ long-header packets or packets sent before the QUIC Aware Forwarding path is
 established for short-header packets. Thus, supporting both provides a
 consistent ECN experience.
 
+# Security Considerations
+
+Connect-UDP requires HTTPS {{RFC9298}}, which ensures that Context ID
+assignments and capsule exchanges are confidential and
+integrity-protected, preventing on-path third parties from
+manipulating ECN and DSCP mappings.
+
+## DSCP and ECN Fields
+
+This specification main functionality is to remap the IP header's
+fields DSCP and ECN to context-IDs between the ingress and egress of
+the MASQUE tunnel for IP/UDP flows mapped to CONNECT-UDP request. It
+also possible to apply on path marking of outer ECN fields to the
+end-to-end packet on egress. Thus, this specification does not change
+the risks with on-path manipulation of the ECN and DSCP fields.
+
+## Resource Consumption
+
+Each ECN_DSCP_CONTEXT_ASSIGN capsule allocates state at the receiving
+endpoint.  However, this state is very limited as per CONNECT-UDP each
+inner assignment maps four IP TOS (DSCP+ECN) byte values to four
+context value. Normally only a small subset out of the potential 256
+different DSCP + ECN combination will be used. Malicous endpoints
+that tries to register more than 256 mappings can be dealt by closing
+the CONNECT-UDP request stream.
+
+## ECN Tunnel Safety
+
+The ECN propagation rules in {{RFC6040}} and the safety requirements in
+{{RFC9601}} apply to this extension. In particular, if the tunnel egress does
+not support ECN propagation, the ingress MUST clear the outer ECN field to
+Not-ECT to prevent CE marks from being silently discarded, which would break
+congestion control feedback loops.
+
 # IANA Considerations
 
 ## HTTP Field Names
