@@ -101,9 +101,10 @@ Table of Contents
      7.2.  HTTP Capsule Type
        7.2.1.  ECN_DSCP_CONTEXT_ASSIGN
        7.2.2.  ECN_DSCP_CONTEXT_ACK
-   8.  References
-     8.1.  Normative References
-     8.2.  Informative References
+   8.  Acknowledgements
+   9.  References
+     9.1.  Normative References
+     9.2.  Informative References
    Authors' Addresses
 
 1.  Introduction
@@ -511,9 +512,15 @@ Table of Contents
 
    Notes:  None
 
-8.  References
+8.  Acknowledgements
 
-8.1.  Normative References
+   The authors like to acknowledge that David Schinazi early had another
+   proposal for adding ECN to Connect-UDP
+   [I-D.schinazi-masque-connect-udp-ecn].
+
+9.  References
+
+9.1.  Normative References
 
    [I-D.ietf-masque-quic-proxy]
               Pauly, T., Rosenberg, E., and D. Schinazi, "QUIC-Aware
@@ -582,7 +589,7 @@ Table of Contents
               HTTP", RFC 9651, DOI 10.17487/RFC9651, September 2024,
               <https://www.rfc-editor.org/rfc/rfc9651>.
 
-8.2.  Informative References
+9.2.  Informative References
 
    [I-D.ietf-quic-multipath]
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
@@ -603,11 +610,6 @@ Table of Contents
               and W. Weiss, "An Architecture for Differentiated
               Services", RFC 2475, DOI 10.17487/RFC2475, December 1998,
               <https://www.rfc-editor.org/rfc/rfc2475>.
-
-   [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
-              Notification (ECN) Experimentation", RFC 8311,
-              DOI 10.17487/RFC8311, January 2018,
-              <https://www.rfc-editor.org/rfc/rfc8311>.
 
    [RFC9330]  Briscoe, B., Ed., De Schepper, K., Bagnulo, M., and G.
               White, "Low Latency, Low Loss, and Scalable Throughput
