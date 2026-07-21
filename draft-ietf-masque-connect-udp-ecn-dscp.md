@@ -290,7 +290,7 @@ ECN_DSCP_CONTEXT_CLOSE Capsule {
 {: #CAP-Format-Close title="ECN_DSCP_CONTEXT_CLOSE Capsule Format"}
 
 Once an endpoint has either sent or received a ECN_DSCP_CONTEXT_CLOSE
-for a given Context ID, it MUST NOT send any further datagrams with that 
+for a given Context ID, it MUST NOT send any further datagrams with that
 Context ID.  Since the value 0 was reserved by unextended UDP proxying,
 a ECN_DSCP_CONTEXT_CLOSE capsule with Context ID set to zero is malformed.
 
