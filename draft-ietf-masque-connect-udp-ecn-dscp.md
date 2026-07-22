@@ -86,7 +86,7 @@ protocol for HTTP without per-packet byte overhead, solely using Context IDs.
 
 # Introduction
 
-Connect-UDP, as currently defined, limits the Explicit Congestion Notification
+Connect-UDP {{RFC9298}}, as currently defined, limits the Explicit Congestion Notification
 (ECN) {{RFC3168}} exchange between the HTTP server and the target. There is no
 support for carrying the ECN bits between the HTTP Connect-UDP client and the
 HTTP server proxying the UDP flow. Thus, it is not possible to establish the
@@ -229,7 +229,7 @@ A well formed ECDN-DSCP-Context-ID header field SHALL NOT contain the
 same context ID in multiple inner lists or multiple positions within
 the same list.
 
-### ECN DSCP Context ID Assignment and ACK Capsules
+### ECN DSCP Context ID Assignment Capsule
 
 The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
 after negotiation and initial assignment in the HTTP header.
@@ -248,6 +248,12 @@ Type and Length as defined by Section 3.2 of the HTTP Capsule specification
 {{ECN-DSCP-Format}}. Thus, the capsule value consists of zero or more
 ECN_DSCP_CONTEXT_ASSIGNMENT five-tuples.
 
+An endpoints that receives a ECN_DSCP_CONTEXT_ASSIGNMENT MUST either confirm the
+assignment by sending a ECN_DSCP_CONTEXT_ACK or reject it by sending a
+ECN_DSCP_CONTEXT_CLOSE.
+
+### ECN DSCP Context ID Ack Capsule
+
 The ECN_DSCP_CONTEXT_ACK capsule confirms the registration of Context IDs that were received via an
 ECN_DSCP_CONTEXT_ASSIGN capsule.
 
@@ -265,6 +271,30 @@ ECN_DSCP_CONTEXT_ASSIGN capsule with the same ECN_DSCP_CONTEXT_ASSIGNMENT.
 If an endpoint receives an ECN_DSCP_CONTEXT_ACK capsule for an
 ECN_DSCP_CONTEXT_ASSIGNMENT it did not attempt to register,
 that capsule is considered malformed.
+
+### ECN DSCP Context ID Close Capsule
+
+The ECN_DSCP_CONTEXT_CLOSE capsule is sent to indicate
+that the context ID registration was rejected as response to the
+ECN_DSCP_CONTEXT_ASSIGN or can be sent any time later to indicate
+the closure of a previously assigned registration.
+
+~~~ ascii-art
+ECN_DSCP_CONTEXT_CLOSE Capsule {
+  Type (i) = TBA_3
+  Length (i),
+  Context ID (i),
+}
+~~~
+{: #CAP-Format-Close title="ECN_DSCP_CONTEXT_CLOSE Capsule Format"}
+
+Once an endpoint has either sent or received a ECN_DSCP_CONTEXT_CLOSE
+for a given Context ID, it MUST NOT send any further datagrams with that
+Context ID.  Since the value 0 was reserved by unextended UDP proxying,
+a ECN_DSCP_CONTEXT_CLOSE capsule with Context ID set to zero is malformed.
+
+Endpoints MAY close any Context ID regardless of which endpoint registered it.
+Once a Context ID has been closed, that ID cannot be reused; see {{Section 4 of RFC9298}}.
 
 
 # Tunnels and DSCP and ECN marking interactions
@@ -478,6 +508,28 @@ Contact:
 Notes:
 : None
 
+### ECN_DSCP_CONTEXT_ACK
+
+Value:
+: TBA_3
+
+Capsule Type:
+: ECN_DSCP_CONTEXT_CLOSE
+
+Status:
+: permanent
+
+Reference:
+: RFC-TO-BE
+
+Change Controller:
+: IETF
+
+Contact:
+: MASQUE Working Group masque@ietf.org
+
+Notes:
+: None
 
 # Acknowledgements
 
