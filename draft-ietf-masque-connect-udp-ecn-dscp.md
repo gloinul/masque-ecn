@@ -52,7 +52,6 @@ author:
 informative:
    RFC2475:
    RFC9330:
-   RFC9298:
    RFC9484:
    I-D.schinazi-masque-connect-udp-ecn:
    I-D.ietf-quic-multipath:
