@@ -196,7 +196,7 @@ ECT_0_CONTEXT:
 CE_CONTEXT:
 : The Context ID used to indicate the payload was marked with ECN value CE.
 
-### HTTP Structured field
+## HTTP Structured field
 
 ECN-DSCP-Context-ID is a Structured Header Field {{RFC9651}}. Its value is a List
 consisting of zero or more Inner Lists, where the Inner List contains five
@@ -229,7 +229,7 @@ A well formed ECDN-DSCP-Context-ID header field SHALL NOT contain the
 same context ID in multiple inner lists or multiple positions within
 the same list.
 
-### ECN DSCP Context ID Assignment Capsule
+## ECN DSCP Context ID Assignment Capsule
 
 The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional Context ID values
 after negotiation and initial assignment in the HTTP header.
@@ -252,7 +252,7 @@ An endpoints that receives a ECN_DSCP_CONTEXT_ASSIGNMENT MUST either confirm the
 assignment by sending a ECN_DSCP_CONTEXT_ACK or reject it by sending a
 ECN_DSCP_CONTEXT_CLOSE.
 
-### ECN DSCP Context ID Ack Capsule
+## ECN DSCP Context ID Ack Capsule
 
 The ECN_DSCP_CONTEXT_ACK capsule confirms the registration of Context IDs that were received via an
 ECN_DSCP_CONTEXT_ASSIGN capsule.
@@ -272,7 +272,7 @@ If an endpoint receives an ECN_DSCP_CONTEXT_ACK capsule for an
 ECN_DSCP_CONTEXT_ASSIGNMENT it did not attempt to register,
 that capsule is considered malformed.
 
-### ECN DSCP Context ID Close Capsule
+## ECN DSCP Context ID Close Capsule
 
 The ECN_DSCP_CONTEXT_CLOSE capsule is sent to indicate
 that the context ID registration was rejected as response to the
