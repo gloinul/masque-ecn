@@ -5,11 +5,11 @@
 MASQUE                                                     M. Westerlund
 Internet-Draft                                                  Ericsson
 Intended status: Standards Track                              M. Seemann
-Expires: 7 January 2027                                        Smallstep
+Expires: 23 January 2027                                       Smallstep
                                                             M. Kühlewind
                                                                 M. Ihlar
                                                                 Ericsson
-                                                             6 July 2026
+                                                            22 July 2026
 
 
               ECN and DSCP support for HTTPS's Connect-UDP
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 January 2027.
+   This Internet-Draft will expire on 23 January 2027.
 
 Copyright Notice
 
@@ -83,7 +83,9 @@ Table of Contents
    4.  Negotiating Extensions Usage
      4.1.  ECN DSCP Context Assignment Format
        4.1.1.  HTTP Structured field
-       4.1.2.  ECN DSCP Context ID Assignment and ACK Capsules
+       4.1.2.  ECN DSCP Context ID Assignment Capsule
+       4.1.3.  ECN DSCP Context ID Ack Capsule
+       4.1.4.  ECN DSCP Context ID Close Capsule
    5.  Tunnels and DSCP and ECN marking interactions
      5.1.  Tunnel Endpoint Marking
      5.2.  DSCP Remarking Considerations
@@ -101,6 +103,7 @@ Table of Contents
      7.2.  HTTP Capsule Type
        7.2.1.  ECN_DSCP_CONTEXT_ASSIGN
        7.2.2.  ECN_DSCP_CONTEXT_ACK
+       7.2.3.  ECN_DSCP_CONTEXT_ACK
    8.  Acknowledgements
    9.  References
      9.1.  Normative References
@@ -109,13 +112,13 @@ Table of Contents
 
 1.  Introduction
 
-   Connect-UDP, as currently defined, limits the Explicit Congestion
-   Notification (ECN) [RFC3168] exchange between the HTTP server and the
-   target.  There is no support for carrying the ECN bits between the
-   HTTP Connect-UDP client and the HTTP server proxying the UDP flow.
-   Thus, it is not possible to establish the end-to-end ECN information
-   flow necessary to support either classic ECN [RFC3168] or L4S
-   [RFC9330], [RFC9331].
+   Connect-UDP [RFC9298], as currently defined, limits the Explicit
+   Congestion Notification (ECN) [RFC3168] exchange between the HTTP
+   server and the target.  There is no support for carrying the ECN bits
+   between the HTTP Connect-UDP client and the HTTP server proxying the
+   UDP flow.  Thus, it is not possible to establish the end-to-end ECN
+   information flow necessary to support either classic ECN [RFC3168] or
+   L4S [RFC9330], [RFC9331].
 
    Diffserv [RFC2475] enables differential network treatment of packets.
    Connect-UDP, as currently defined, lacks support for carrying the
@@ -274,7 +277,7 @@ Table of Contents
    same context ID in multiple inner lists or multiple positions within
    the same list.
 
-4.1.2.  ECN DSCP Context ID Assignment and ACK Capsules
+4.1.2.  ECN DSCP Context ID Assignment Capsule
 
    The ECN_DSCP_CONTEXT_ASSIGN capsule is used to assign additional
    Context ID values after negotiation and initial assignment in the
@@ -294,6 +297,12 @@ Table of Contents
    capsule value consists of zero or more ECN_DSCP_CONTEXT_ASSIGNMENT
    five-tuples.
 
+   An endpoints that receives a ECN_DSCP_CONTEXT_ASSIGNMENT MUST either
+   confirm the assignment by sending a ECN_DSCP_CONTEXT_ACK or reject it
+   by sending a ECN_DSCP_CONTEXT_CLOSE.
+
+4.1.3.  ECN DSCP Context ID Ack Capsule
+
    The ECN_DSCP_CONTEXT_ACK capsule confirms the registration of Context
    IDs that were received via an ECN_DSCP_CONTEXT_ASSIGN capsule.
 
@@ -310,6 +319,31 @@ Table of Contents
    ECN_DSCP_CONTEXT_ASSIGNMENT.  If an endpoint receives an
    ECN_DSCP_CONTEXT_ACK capsule for an ECN_DSCP_CONTEXT_ASSIGNMENT it
    did not attempt to register, that capsule is considered malformed.
+
+4.1.4.  ECN DSCP Context ID Close Capsule
+
+   The ECN_DSCP_CONTEXT_CLOSE capsule is sent to indicate that the
+   context ID registration was rejected as response to the
+   ECN_DSCP_CONTEXT_ASSIGN or can be sent any time later to indicate the
+   closure of a previously assigned registration.
+
+   ECN_DSCP_CONTEXT_CLOSE Capsule {
+     Type (i) = TBA_3
+     Length (i),
+     Context ID (i),
+   }
+
+              Figure 5: ECN_DSCP_CONTEXT_CLOSE Capsule Format
+
+   Once an endpoint has either sent or received a ECN_DSCP_CONTEXT_CLOSE
+   for a given Context ID, it MUST NOT send any further datagrams with
+   that Context ID.  Since the value 0 was reserved by unextended UDP
+   proxying, a ECN_DSCP_CONTEXT_CLOSE capsule with Context ID set to
+   zero is malformed.
+
+   Endpoints MAY close any Context ID regardless of which endpoint
+   registered it.  Once a Context ID has been closed, that ID cannot be
+   reused; see Section 4 of [RFC9298].
 
 5.  Tunnels and DSCP and ECN marking interactions
 
@@ -512,6 +546,22 @@ Table of Contents
 
    Notes:  None
 
+7.2.3.  ECN_DSCP_CONTEXT_ACK
+
+   Value:  TBA_3
+
+   Capsule Type:  ECN_DSCP_CONTEXT_CLOSE
+
+   Status:  permanent
+
+   Reference:  RFC-TO-BE
+
+   Change Controller:  IETF
+
+   Contact:  MASQUE Working Group masque@ietf.org
+
+   Notes:  None
+
 8.  Acknowledgements
 
    The authors like to acknowledge that David Schinazi early had another
@@ -525,9 +575,9 @@ Table of Contents
    [I-D.ietf-masque-quic-proxy]
               Pauly, T., Rosenberg, E., and D. Schinazi, "QUIC-Aware
               Proxying Using HTTP", Work in Progress, Internet-Draft,
-              draft-ietf-masque-quic-proxy-08, 2 March 2026,
+              draft-ietf-masque-quic-proxy-09, 6 July 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              quic-proxy-08>.
+              quic-proxy-09>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
